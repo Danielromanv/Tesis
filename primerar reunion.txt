@@ -1,0 +1,16 @@
+-problem instance
+-validador (python) calcula los costos, si es factible no factible los ingresos y gastos de un archivo
+- Operadores 2 opt ,3 opt, cambiar por susbsecuencias
+- revisar las rutas por arcos
+- suponer más rutas
+- caso de estudio como más rutas
+- ver los castigos de la función obj
+- controlar el valor de la semilla
+- probar diferentes puntos de partida
+ asegurar que se corrieron con semillas diferentes-
+-ver convergencia de la solución por paso
+-centraría en las ijnstancias pequeñas
+
+
+
+http://prntscr.com/1ipxk6z

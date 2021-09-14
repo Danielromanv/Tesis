@@ -402,7 +402,7 @@ int Solution::getDemandSubtraction(int dda, int prod) {
 
 void Solution::addBackToPlant(int i, Node *currentNode, Route *currentRoute, bool pos, bool repairing){
     if (currentRoute->trips.back()->finalNode != this->plant){
-        
+
         if (this->unsatisfiedDemand[i] < 0 and pos) { // vuelve a planta si ya suplio la demanda
             Trip *toPlant = newTrip(currentNode, this->plant, currentRoute);
             currentRoute->distance += toPlant->distance;
@@ -583,9 +583,9 @@ vector<int> Solution::convertMilk(bool print) { //Si print es true va a agregar 
             aux += 1; //por cada una que requiera cero aumento en uno el contador.
         }
     }
-    
+
     vector<int> litersxtype(3, 0); //vector de tamaño tres inicializado en cero.
-    
+
     for (Route *r: this->routes) { //Se suma la cantidad de leche de cada tipo que viene en cada camión.
         //cout << "La ruta: " << r->truck->getId() - 1 << " trae leche tipo " << r->getTypeIndex() << endl;
         int liters = this->problemInstance->trucks[r->truck->getId() - 1]->getTotalCapacity() - r->remainingCapacity;
@@ -598,11 +598,11 @@ vector<int> Solution::convertMilk(bool print) { //Si print es true va a agregar 
 //     for (int i: litersxtype)
 //         cout << i << " ";
 //     cout << endl;
-    
+
 //     for (int i: recollectedMilk)
 //         cout << i << " ";
 //     cout << endl;
-    
+
     if (aux == problemInstance->getNumberOfQualities()) { //solo en caso de que no se pida ninguna cuota en particular de ninguno de los tres tipos de leche.
         if (print) {
             for (int i = 0; i < recollectedMilk.size(); ++i) {
@@ -724,12 +724,12 @@ void Solution::printSolution() {
 
     vector<int> totalMilk = convertMilk(false);
     reverse(totalMilk.begin(), totalMilk.end());
-    
+
 
     cout << endl << "CALCULO DE TOTAL MILK" << endl;
     double suma(0);
     for (int i = 0; i < totalMilk.size(); ++i) {
-        cout << i << " " << totalMilk[i] << " " << this->literCost[i] << endl; 
+        cout << i << " " << totalMilk[i] << " " << this->literCost[i] << endl;
         suma += totalMilk[i] * this->literCost[i];
     }
 

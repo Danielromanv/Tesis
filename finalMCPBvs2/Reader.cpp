@@ -35,7 +35,7 @@ ProblemInstance *Reader::readInputFile(double temperature) {
 
     this->findDef(":=");
     this->readNodes(problemInstance);
-    
+
     this->findDef(":=");
     this->readDistances(problemInstance);
 

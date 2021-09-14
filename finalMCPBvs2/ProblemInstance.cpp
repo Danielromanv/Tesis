@@ -73,4 +73,3 @@ void ProblemInstance::printAll(){
 
     cout << "Matrix[0][0]: " << this->distances[0][0] << endl; //matriz con diagonal de ceros
 }
-

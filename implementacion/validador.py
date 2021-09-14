@@ -65,7 +65,7 @@ class Instance:
                 for i in nodes:
                     temp = i.split(" ")
                     temp = list(filter(('').__ne__,temp))
-                    self.nodes.append(Node(int(temp[0]),int(temp[1]),int(temp[2])))
+                    self.nodes.append(Node(int(temp[0]),int(temp[1]),int(temp[2])-1))
 
     def displayN(self):
         print(self.n)
@@ -104,7 +104,7 @@ for i in inst.nodes:
     if i.q == 1:
         q1.append((i.id,i.cap))
 
-#random.seed(3)
+random.seed(18)
 k1 = random.sample(q1,random.randint(0,len(q1)))
 
 tot1 = 0
@@ -117,14 +117,16 @@ k = len(inst.trucks)
 for i in range(1,k):
     ruta = []
     for j in inst.nodes:
-        if j.id not in visited and random.random() <0.20:
+        if j.id not in visited and random.random() <0.15:
             visited.append(j.id)
             ruta.append((j.id,j.cap,j.q))
     camiones.append(ruta)
 
 for i,j in k1:
     print(str(i),end =" ")
-print(";", tot1,1)
+print(";", tot1,0)
+
+entregado = [tot1,0,0]
 
 for i in camiones:
     tot = 0
@@ -134,4 +136,13 @@ for i in camiones:
             maxq = l
         tot += k
         print(str(j),end =" ")
+    entregado[maxq] += tot
     print(";", tot,maxq)
+for i in range(3):
+    print("Demanda de Leche de tipo",i,":",inst.qualities[i],"litros")
+
+for i in range(3):
+    print("Total recibido de calidad",i,":",entregado[i],"litros")
+
+
+print("Beneficio total de leche recibida:",entregado[0]*0.03+entregado[1]*0.021+entregado[2]*0.009)

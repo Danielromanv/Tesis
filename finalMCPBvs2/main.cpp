@@ -40,7 +40,7 @@ int main(int argc, char *argv[]) {
         float PD(atof(argv[6]));
         int it_int(atoi(argv[7]));
         int evaluaciones(atoi(argv[8]));
-        
+
         int it_ext=evaluaciones/it_int;
 
         srand(seed);
@@ -54,7 +54,6 @@ int main(int argc, char *argv[]) {
         ProblemInstance *problemInstance;
 
         problemInstance = r.readInputFile(500); // temperature
-
         auto *bestSolution = new Solution(problemInstance, seed);
         auto *lastSolution = new Solution(problemInstance, seed);
 
@@ -99,12 +98,12 @@ int main(int argc, char *argv[]) {
 
             if (construction->construct) {
                 reorderNodes->movement(currentSolution);
-                
-                if (currentSolution->getTotalBenefit() > bestSolution->getTotalBenefit()) 
+
+                if (currentSolution->getTotalBenefit() > bestSolution->getTotalBenefit())
                    bestSolution->resetSolution(*currentSolution);
 
                 lastSolution->resetSolution(*currentSolution);
-            
+
                 for (int i = 0; i < it_int; ++i) {
                     removeNodes->breakDemands(currentSolution, GAMMA);
                     addNodes->movement(currentSolution, EPSILON);

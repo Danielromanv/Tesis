@@ -101,33 +101,85 @@ q3 = []
 visited = []
 
 for i in inst.nodes:
+    if i.q == 0:
+        q1.append((i.id,i.cap,0))
     if i.q == 1:
-        q1.append((i.id,i.cap))
+        q2.append((i.id,i.cap,1))
+    if i.q == 2:
+        q3.append((i.id,i.cap,2))
 
 random.seed(18)
-k1 = random.sample(q1,random.randint(0,len(q1)))
+random.shuffle(q1)
+random.shuffle(q2)
+random.shuffle(q3)
 
-tot1 = 0
-for i,j in k1:
-    visited.append(i)
-    tot1 += j
+maxq1 = sum(x[1] for x in q1)
+maxq2 = sum(x[1] for x in q2)
+maxq3 = sum(x[1] for x in q3)
+print("Total leche de calidad 0 en predios:",maxq1)
+print("Total leche de calidad 1 en predios:",maxq2)
+print("Total leche de calidad 2 en predios:",maxq3)
 
 camiones = []
-k = len(inst.trucks)
-for i in range(1,k):
+tot1 = 0
+for i in range(len(inst.trucks)):
+    if tot1 < inst.qualities[0] and tot1 != maxq1:
+        t1 = 0
+        ruta = []
+        for i,j,k in q1:
+            if t1 + j <= inst.trucks[0].cap and i not in visited:
+                visited.append(i)
+                ruta.append((i,j,k))
+                t1 += j
+        tot1 += t1
+        if len(ruta) > 0:
+            camiones.append(ruta)
+tot2 = 0
+for i in range(len(camiones),len(inst.trucks)):
+    if tot2 < inst.qualities[1] and tot2 != maxq2:
+        t2 = 0
+        ruta = []
+        q12 = q1+q2
+        for i,j,k in q12:
+            if t2 + j <= inst.trucks[0].cap and i not in visited:
+                visited.append(i)
+                ruta.append((i,j,k))
+                t2 += j
+                c1=0
+                c2=0
+                for x,y,z in ruta:
+                    if z == 0:
+                        c1 += y
+                    if z == 1:
+                        c2 += y
+                    print(x,end =" ")
+                print("; 0:",c1," 1:",c2,"pérdida: ",c1*0.021-c1*0.03)
+        tot2 += t2
+        if len(ruta) > 0:
+            camiones.append(ruta)
+
+for i in range(len(camiones),len(inst.trucks)):
     ruta = []
-    for j in inst.nodes:
-        if j.id not in visited and random.random() <0.15:
-            visited.append(j.id)
-            ruta.append((j.id,j.cap,j.q))
+    for j,k,l in q1+q2+q3:
+        if j not in visited and sum(x[1] for x in ruta) <= inst.trucks[i].cap:
+            visited.append(j)
+            ruta.append((j,k,l))
+            c1=0
+            c2=0
+            c3=0
+            for x,y,z in ruta:
+                if z == 0:
+                    c1 += y
+                if z == 1:
+                    c2 += y
+                if z == 2:
+                    c3 += y
+                print(x,end =" ")
+            print("; 0:",c1," 1:",c2," 2:",c3,"pérdida: ",c1*0.009-c1*0.03 + c2*0.009-c2*0.021 )
     camiones.append(ruta)
 
-for i,j in k1:
-    print(str(i),end =" ")
-print(";", tot1,0)
 
-entregado = [tot1,0,0]
-
+entregado = [0,0,0]
 for i in camiones:
     tot = 0
     maxq = 0
@@ -143,6 +195,7 @@ for i in range(3):
 
 for i in range(3):
     print("Total recibido de calidad",i,":",entregado[i],"litros")
+
 
 
 print("Beneficio total de leche recibida:",entregado[0]*0.03+entregado[1]*0.021+entregado[2]*0.009)

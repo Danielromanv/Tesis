@@ -9,7 +9,7 @@
 int main(int argc, char *argv[]) {
     int instance(atoi(argv[1]));
     int seed(atoi(argv[2]));
-
+    float slack = 0.10;
     srand(seed);
 
     clock_t t0, t1, t2, timeToBest;
@@ -35,9 +35,14 @@ int main(int argc, char *argv[]) {
 
     Solution *solucion = new Solution(problemInstance, seed);
     Construction *construct = new Construction(0, solucion);
-    construct -> feasibleSolution(solucion);
-    solucion -> printAll();
-    delete problemInstance;
+    construct -> feasibleSolution(solucion, slack);
+    //solucion -> printAll();
+    vector<int> l = solucion->left();
+    solucion->isFeasible();
+    //double fo = solucion->evaluate();
+    //solucion->printAll();
+    //std::cout << "F.O: "<< fo << '\n';
 
+    delete problemInstance;
 return 0;
 }

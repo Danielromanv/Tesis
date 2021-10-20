@@ -16,7 +16,7 @@ Construction::~Construction(){
     this->currentRoute = nullptr;
 }
 
-void Construction::feasibleSolution(Solution *solution){
+void Construction::feasibleSolution(Solution *solution, float slack){
     for(int i = 0; i < solution->problemInstance->getNumberOfQualities(); ++i){
         std::cout << "Nodos iteracion tipo "<< i << '\n';
         for (Node *n: solution->problemInstance->NodesByType[i]){n->printAll();}
@@ -59,15 +59,38 @@ void Construction::feasibleSolution(Solution *solution){
                         this->currentRoute->printAll();
                         break;
                     }
-                    std::cout << "nueva ruta" << '\n';
+                    // if (checkUsage(slack,i,solution) && i < 2){
+                    //     solution->addRoute(i+2);
+                    //     this->currentRoute = solution->routes.back();
+                    //     this->currentNode = solution->plant;
+                    //     this->currentRoute->printAll();
+                    //     break;
+                    // }
                     solution->addRoute(i+1);
                     this->currentRoute = solution->routes.back();
                     this->currentNode = solution->plant;
-                    std::cout << "genere ruta " << '\n';
                     this->currentRoute->printAll();
+                    if (checkUsage(slack,i,solution) && i < 2){
+                        this->currentRoute->type = i+1;
+                        std::cout << "cambio forzado" << '\n';
+                        break;
+                    }
                 }
             }
         }
 
     }
+}
+
+bool Construction::checkUsage(float slack, int index, Solution *solution){
+    int available = 0;
+    for (Node *n: solution->problemInstance->NodesByType[index]){
+        if(find(solution->unvisitedNodes.begin(),solution->unvisitedNodes.end(),n) != solution->unvisitedNodes.end()){
+            available += n->getProduction();
+        }
+    }
+    cout << "\n\ndisponible de "<< index<< " para recolectar: "<< available << '\n';
+    cout << "disponible en el camión: "<< this->currentRoute->remainingCapacity << '\n';
+    cout << "disponible en el camión con slack: "<< (this->currentRoute->remainingCapacity)*(1-slack) << "\n\n";
+    return ((this->currentRoute->remainingCapacity)*(1-slack) > available);
 }

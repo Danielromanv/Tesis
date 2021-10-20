@@ -36,12 +36,12 @@ vector<Trip *> Construction::getOptions(Solution *solution,  bool resize) {
 //        if (options.size() > this->alpha) {//alpha es beta.
 //             cout << "this->alpha: " << this->alpha <<endl;
 //             getchar();
-//            sort(options.begin(), options.end(), sortByDistance); 
+//            sort(options.begin(), options.end(), sortByDistance);
 //            options.resize(this->alpha);
 //        }
 //    }
-    
-    sort(options.begin(), options.end(), sortByDistance); 
+
+    sort(options.begin(), options.end(), sortByDistance);
     if (options.size() > this->alpha) //alpha es beta.
         options.resize(this->alpha);
     return options;
@@ -170,7 +170,7 @@ void Construction::feasibleSolution(Solution *solution, bool corte) {
     }
 //    cout << "*************************************Despues de fase 2" << endl;
 //    solution->DetectWrong();
-    
+
 //    //random. <- segun cuantos queden(?) <- ojo que 3 siempre quedan
 //    for(Truck *truck: solution->unusedTrucks){
 //        solution->addRoute(1); //no importa por que al ser largo 1,? se le asigna un tipo random.

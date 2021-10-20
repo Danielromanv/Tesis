@@ -63,8 +63,10 @@ public:
 
     void printAll();
     void printSolution();
+    double evaluate();
 
+    bool isFeasible();
     bool DetectWrong(void);
-
+    vector<int> left();
 
 };

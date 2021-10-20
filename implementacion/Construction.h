@@ -24,5 +24,6 @@ public:
     explicit Construction(int solid, Solution *solution);
     ~Construction();
 
-    void feasibleSolution(Solution *solution);
+    void feasibleSolution(Solution *solution, float slack);
+    bool checkUsage(float slack, int index, Solution *solution);
 };

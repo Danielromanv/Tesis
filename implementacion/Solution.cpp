@@ -232,11 +232,14 @@ void Solution::updateDemands(int currentTypeIndex, Node *currentNode, Route *cur
     bool pos(false);
     for (int i = currentTypeIndex; i < this->unsatisfiedDemand.size(); ++i) {
         int aux(getDemandSubtraction(this->unsatisfiedDemand[i], subtracting));
+        //std::cout << "DEMANDA DE "<< i <<"antes: "<<this->unsatisfiedDemand[i] << '\n';
         if (this->unsatisfiedDemand[i] > 0 || currentRoute->isFull()) {
             pos = true;
         }
         this->unsatisfiedDemand[i] -= subtracting;
         subtracting = aux;
+        //std::cout << "substracting "<< subtracting << '\n';
+        //std::cout << "DEMANDA DE  despues: "<<this->unsatisfiedDemand[i] << '\n';
         addBackToPlant(i, currentNode, currentRoute, pos, repairing);
     }
 }
@@ -402,4 +405,82 @@ void Solution::printSolution() {
     cout << "COSTO_TPTE = " << totalDistance << endl;
     cout << "INGRESO_LECHE = " << to_string(suma) << endl;
 
+}
+
+vector<int> Solution::left(){
+    vector<int> r;
+    int a,s;
+    for (int i = 0; i < this->recollected.size(); i++) {
+        a = this->problemInstance->qualities[i] - this->recollected[i];
+        if (a >= 0){
+            r.push_back(a);
+        }
+        else{
+            r.push_back(0);
+            s -= a;
+        }
+    }
+    r.push_back(s);
+    return r;
+}
+
+bool Solution::isFeasible(){
+    bool t = 1;
+    vector<int> resto;
+    for(int i=0; i < this->recollected.size(); i++){
+        std::cout << "Recolectado de tipo "<< i << ": "<< this->recollected[i] << '\n';
+        resto.push_back(this->recollected[i]-this->problemInstance->qualities[i]);
+        if (this->recollected[i] < this->problemInstance->qualities[i]){
+            t = 0;
+        }
+    }
+    this->evaluate();
+    std::cout << "factible previo a mezcla :"<< t << '\n';
+    for(int i=0; i < this->recollected.size(); i++){
+        if (resto[i] < 0 && i != 0){
+            if (resto[i-1] > -resto[i]){
+                this->recollected[i] -= resto[i];
+                this->recollected[i-1] += resto[i];
+                resto[i] = 0;
+            }
+            else if(i > 1){
+                if((resto[i-2]+resto[i-1]) > -resto[i]){
+                    this->recollected[i] -= resto[i];
+                    resto[i] += resto[i-1];
+                    this->recollected[i-1] -= resto[i-1];
+                    this->recollected[i-2] += resto[i];
+                    resto[i] = 0;
+                }
+            }
+        }
+        if (resto[i]>=0){
+            t = 1;
+        }
+        if(resto[i]<0){
+            t = 0;
+        }
+    }
+    for(int i=0; i < this->recollected.size(); i++){
+        std::cout << this->recollected[i] << '\n';
+    }
+    if(t){
+        std::cout << "factible post mezcla: "<< t << '\n';
+    }
+    this->evaluate();
+    return t;
+}
+
+double Solution::evaluate(){
+    double totalDistance(0);
+    for (Route *r: this->routes) {
+        totalDistance += r->distance;
+    }
+    std::cout << "distancia: "<< totalDistance << '\n';
+    double milk(0);
+    for (int i=0; i < this->recollected.size(); i++){
+        std::cout << "agregando: "<< (double)this->recollected[i] * this->literCost[i] << '\n';
+        milk += (double)this->recollected[i] * this->literCost[i];
+    }
+    std::cout << "obj: "<< milk - totalDistance * this->kilometerCost << '\n';
+    return milk - totalDistance * this->kilometerCost;
 }

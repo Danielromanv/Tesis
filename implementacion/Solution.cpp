@@ -453,19 +453,17 @@ bool Solution::isFeasible(){
                 }
             }
         }
-        if (resto[i]>=0){
-            t = 1;
-        }
-        if(resto[i]<0){
+        if(this->recollected[i] < this->problemInstance->qualities[i]){
             t = 0;
+        }
+        else{
+            t = 1;
         }
     }
     for(int i=0; i < this->recollected.size(); i++){
         std::cout << this->recollected[i] << '\n';
     }
-    if(t){
-        std::cout << "factible post mezcla: "<< t << '\n';
-    }
+    std::cout << "factible post mezcla: "<< t << '\n';
     this->evaluate();
     return t;
 }

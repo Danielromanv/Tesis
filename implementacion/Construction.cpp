@@ -19,8 +19,11 @@ Construction::~Construction(){
 void Construction::feasibleSolution(Solution *solution, float slack){
     for(int i = 0; i < solution->problemInstance->getNumberOfQualities(); ++i){
         std::cout << "Nodos iteracion tipo "<< i << '\n';
-        for (Node *n: solution->problemInstance->NodesByType[i]){n->printAll();}
-        while (solution->getUnsatisfiedType(i) != -1) {
+        if (this->currentRoute->isFull()){
+            break;
+        }
+        //for (Node *n: solution->problemInstance->NodesByType[i]){n->printAll();}
+        while (solution->getUnsatisfiedType(i) != -1 || this->currentRoute->remainingCapacity > 0) {
             //std::cout << "unsatisfiedDemand "<< i << " : "<< solution->unsatisfiedDemand[i] << '\n';
             vector<Trip *> opts;
             for (Node *n: solution->problemInstance->NodesByType[i]){
@@ -37,13 +40,20 @@ void Construction::feasibleSolution(Solution *solution, float slack){
             }
             if (opts.size() > 0){
                 sort(opts.begin(), opts.end(), sortByDistance);
-                // for (Trip *t: opts){
-                //     t->printAll();
-                // }
-                opts.front() -> printAll();
-                solution->addTrip(opts.front(),this->currentRoute);
-                solution->stepUpdateSolution(opts.front(), this->currentRoute, false);
-                this->currentNode = opts.front()->finalNode;
+                
+                if (this->currentRoute->distance == 0){
+                    int selected = rand() % opts.size();
+                    opts[selected]->printAll();
+                    solution->addTrip(opts[selected],this->currentRoute);
+                    solution->stepUpdateSolution(opts[selected], this->currentRoute, false);
+                    this->currentNode = opts[selected]->finalNode;
+                }
+                else{
+                    opts.front() -> printAll();
+                    solution->addTrip(opts.front(),this->currentRoute);
+                    solution->stepUpdateSolution(opts.front(), this->currentRoute, false);
+                    this->currentNode = opts.front()->finalNode;
+                }
                 //std::cout << "remaining: "<< this->currentRoute->remainingCapacity << '\n';
                 if (this->currentRoute->isFull()){
                     this->currentRoute->printAll();
@@ -51,7 +61,7 @@ void Construction::feasibleSolution(Solution *solution, float slack){
                         std::cout << "recolectado de "<<i<<" : "<< solution-> recollected[i] << '\n';
                     }
                     if ((solution->unusedTrucks.empty() && !solution->routes.back()->trips.empty() &&
-                        solution->routes.back()->trips.back()->finalNode == solution->plant) || (solution->unsatisfiedDemand[i] <= 0)){
+                        solution->routes.back()->trips.back()->finalNode == solution->plant) || (solution->unsatisfiedDemand[i] <= 0  && solution->problemInstance->qualities[i] > 0)){
                         std::cout << "cambio de tipo" << '\n';
                         solution->addRoute(i+1);
                         this->currentRoute = solution->routes.back();
@@ -59,13 +69,6 @@ void Construction::feasibleSolution(Solution *solution, float slack){
                         this->currentRoute->printAll();
                         break;
                     }
-                    // if (checkUsage(slack,i,solution) && i < 2){
-                    //     solution->addRoute(i+2);
-                    //     this->currentRoute = solution->routes.back();
-                    //     this->currentNode = solution->plant;
-                    //     this->currentRoute->printAll();
-                    //     break;
-                    // }
                     solution->addRoute(i+1);
                     this->currentRoute = solution->routes.back();
                     this->currentNode = solution->plant;

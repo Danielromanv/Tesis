@@ -9,7 +9,7 @@
 int main(int argc, char *argv[]) {
     int instance(atoi(argv[1]));
     int seed(atoi(argv[2]));
-    float slack = 0.10;
+    float slack = 0.5;
     srand(seed);
 
     clock_t t0, t1, t2, timeToBest;

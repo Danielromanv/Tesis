@@ -453,15 +453,13 @@ bool Solution::isFeasible(){
                 }
             }
         }
+    }
+    t = 1;
+    for(int i=0; i < this->recollected.size(); i++){
+        std::cout << this->recollected[i] << '\n';
         if(this->recollected[i] < this->problemInstance->qualities[i]){
             t = 0;
         }
-        else{
-            t = 1;
-        }
-    }
-    for(int i=0; i < this->recollected.size(); i++){
-        std::cout << this->recollected[i] << '\n';
     }
     std::cout << "factible post mezcla: "<< t << '\n';
     this->evaluate();
@@ -481,4 +479,39 @@ double Solution::evaluate(){
     }
     std::cout << "obj: "<< milk - totalDistance * this->kilometerCost << '\n';
     return milk - totalDistance * this->kilometerCost;
+}
+
+vector<double> Solution::PercentageLeft(){
+    vector<double> r;
+    int a;
+    for (int i = 0; i < this->recollected.size(); i++) {
+        a = this->problemInstance->qualities[i] - this->recollected[i];
+        if (a >= 0){
+            r.push_back((double)a/(double)this->problemInstance->qualities[i]);
+        }
+        else{
+            r.push_back(.0);
+        }
+        std::cout << "porcentaje de "<< i<< " faltante: "<< r[i]*100 << "%\n";
+    }
+    return r;
+}
+
+double Solution::PunishEvaluate(double punish){
+    double totalDistance(0);
+    vector<double> v = this->PercentageLeft();
+    for (Route *r: this->routes) {
+        totalDistance += r->distance;
+    }
+    std::cout << "distancia: "<< totalDistance << '\n';
+    double milk(0);
+    for (int i=0; i < this->recollected.size(); i++){
+        std::cout << "agregando: "<< (double)this->recollected[i] * this->literCost[i] << '\n';
+        milk += (double)this->recollected[i] * this->literCost[i];
+
+    }
+    std::cout << v[0] << '\n';
+    std::cout << (v[0]*this->literCost[0]*4) << '\n';
+    std::cout << "obj castigado: "<< milk - (totalDistance * this->kilometerCost) - punish*((v[2]*this->literCost[2]*2) + (v[1]*this->literCost[1]*3) + (v[0]*this->literCost[0]*4)) << '\n';
+    return milk - (totalDistance * this->kilometerCost) - punish*((v[2]*this->literCost[2]*2) + (v[1]*this->literCost[1]*3) + (v[0]*this->literCost[0]*4));
 }

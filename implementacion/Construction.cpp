@@ -17,13 +17,14 @@ Construction::~Construction(){
 }
 
 void Construction::feasibleSolution(Solution *solution, float slack){
+    vector<int> real = getRealDemand(solution);
     for(int i = 0; i < solution->problemInstance->getNumberOfQualities(); ++i){
         std::cout << "Nodos iteracion tipo "<< i << '\n';
         if (this->currentRoute->isFull()){
             break;
         }
         //for (Node *n: solution->problemInstance->NodesByType[i]){n->printAll();}
-        while (solution->getUnsatisfiedType(i) != -1 || this->currentRoute->remainingCapacity > 0) {
+        while (solution->getUnsatisfiedType(i) != -1 || this->currentRoute->remainingCapacity > 0 || solution->recollected[i] < real[i] ) {
             //std::cout << "unsatisfiedDemand "<< i << " : "<< solution->unsatisfiedDemand[i] << '\n';
             vector<Trip *> opts;
             for (Node *n: solution->problemInstance->NodesByType[i]){
@@ -40,7 +41,7 @@ void Construction::feasibleSolution(Solution *solution, float slack){
             }
             if (opts.size() > 0){
                 sort(opts.begin(), opts.end(), sortByDistance);
-                
+
                 if (this->currentRoute->distance == 0){
                     int selected = rand() % opts.size();
                     opts[selected]->printAll();
@@ -95,5 +96,40 @@ bool Construction::checkUsage(float slack, int index, Solution *solution){
     cout << "\n\ndisponible de "<< index<< " para recolectar: "<< available << '\n';
     cout << "disponible en el camión: "<< this->currentRoute->remainingCapacity << '\n';
     cout << "disponible en el camión con slack: "<< (this->currentRoute->remainingCapacity)*(1-slack) << "\n\n";
+    std::cout << ((this->currentRoute->remainingCapacity)*(1-slack) > available) << '\n';
     return ((this->currentRoute->remainingCapacity)*(1-slack) > available);
+}
+
+vector<int> Construction::getRealDemand(Solution *solution){
+    vector<int> available, real(solution->problemInstance->qualities.size());
+    for (size_t i = 0; i < solution->problemInstance->qualities.size(); i++) {
+        int s=0;
+        for (Node *n: solution->problemInstance->NodesByType[i]) {
+            s += n->getProduction();
+        }
+        std::cout << "disponible de tipo "<< i << " "<< s << '\n';
+        available.push_back(s);
+    }
+    for (size_t i = 0; i < solution->problemInstance->qualities.size(); i++) {
+        if (solution->problemInstance->qualities[i] < available[i]){
+            real[i] = solution->problemInstance->qualities[i];
+        }
+        else if(i == 1 && solution->problemInstance->qualities[i] > available[i]){
+            real[i-1] += solution->problemInstance->qualities[i] - available[i];
+            real[i] = available[i];
+        }
+        else if(i > 1 && solution->problemInstance->qualities[i-1] > available[i-1] && solution->problemInstance->qualities[i] > available[i]){
+            real[i-2] = solution->problemInstance->qualities[i] - available[i];
+            real[i] = available[i];
+        }
+        else{
+            real[i] = solution->problemInstance->qualities[i];
+        }
+    }
+    for (size_t i = 0; i < 3; i++) {
+        std::cout << "demanda de "<< i << " " << solution->problemInstance->qualities[i] << '\n';
+        std::cout << "demanda real de "<< i << " " << real[i] << '\n';
+    }
+
+    return real;
 }

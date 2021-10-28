@@ -26,4 +26,5 @@ public:
 
     void feasibleSolution(Solution *solution, float slack);
     bool checkUsage(float slack, int index, Solution *solution);
+    vector<int> getRealDemand(Solution *solution);
 };

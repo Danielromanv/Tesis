@@ -64,9 +64,11 @@ public:
     void printAll();
     void printSolution();
     double evaluate();
+    double PunishEvaluate(double punish);
 
     bool isFeasible();
     bool DetectWrong(void);
     vector<int> left();
+    vector<double> PercentageLeft();
 
 };

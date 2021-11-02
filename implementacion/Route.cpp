@@ -4,6 +4,15 @@ bool Route::DetectWrong(){
     if(this->trips.back()->finalNode->getId() != 0){
         return true;
     }
+    else if(this->trips[0]->initialNode != this->trips.back()->finalNode){
+        return true;
+    }
+    for (size_t i = 0; i < this->trips.size(); i++) {
+        if (i != 0 && i != this->trips.size()-1 && (this->trips[i]->initialNode->getId() == 0 || this->trips[i]->finalNode->getId() == 0)){
+            std::cout << "cero antes" << '\n';
+            return true;
+        }
+    }
     return false;
 }
 

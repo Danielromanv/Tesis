@@ -42,6 +42,7 @@ Solution::Solution(ProblemInstance *problemInstance, unsigned int seed){
 
 }
 
+
 Solution::~Solution() {
 //    cout << "Deleting Solution" << endl;
     this->recollected.clear();
@@ -103,6 +104,62 @@ Solution::Solution(const Solution &s2){
     kilometerCost = s2.kilometerCost;
 
     seed = s2.seed;
+}
+
+void Solution::resetSolution(const Solution &s2) {
+
+    this->recollected = s2.recollected;
+    this->unsatisfiedDemand = s2.unsatisfiedDemand;
+
+    this->unusedTrucks.clear();
+    this->unusedTrucks.shrink_to_fit();
+    for (Truck *truck: s2.unusedTrucks) {
+        Truck *copy = truck;
+        this->unusedTrucks.push_back(copy);
+    }
+
+    this->unvisitedNodes.clear();
+    this->unvisitedNodes.shrink_to_fit();
+    for (Node *node: s2.unvisitedNodes) {
+        Node *copy = node;
+        this->unvisitedNodes.push_back(copy);
+    }
+
+    this->nodesXQuality = s2.nodesXQuality;
+
+    for (Route *route:this->routes) {
+        delete route;
+    }
+    this->routes.clear();
+    this->routes.shrink_to_fit();
+
+    for (Route *route: s2.routes) {
+        Route *copy = new Route(*route);
+        this->routes.push_back(copy);
+    }
+    this->seed = s2.seed;
+}
+
+void Solution::replaceInSolution(Route *newRoute){
+    newRoute->distance = 0;
+    for(Trip *trip: newRoute->trips){
+        newRoute->distance += trip->distance;  //Se suma una por una las distancias de los trips
+    }
+
+    Route *replace;
+    int i=0;
+    for(Route *route:this->routes){
+        if(route->getId() == newRoute->getId()){
+            replace=route;
+            break;
+        }
+        i++;
+    }
+
+    delete replace;
+    this->routes.erase(this->routes.begin()+i);
+    this->routes.insert(this->routes.begin()+i, newRoute);
+    return;
 }
 
 double Solution::random_number(double min, double max){
@@ -428,14 +485,14 @@ bool Solution::isFeasible(){
     bool t = 1;
     vector<int> resto;
     for(int i=0; i < this->recollected.size(); i++){
-        std::cout << "Recolectado de tipo "<< i << ": "<< this->recollected[i] << '\n';
+        //std::cout << "Recolectado de tipo "<< i << ": "<< this->recollected[i] << '\n';
         resto.push_back(this->recollected[i]-this->problemInstance->qualities[i]);
         if (this->recollected[i] < this->problemInstance->qualities[i]){
             t = 0;
         }
     }
     this->evaluate();
-    std::cout << "factible previo a mezcla :"<< t << '\n';
+    //std::cout << "factible previo a mezcla :"<< t << '\n';
     for(int i=0; i < this->recollected.size(); i++){
         if (resto[i] < 0 && i != 0){
             if (resto[i-1] > -resto[i]){
@@ -456,12 +513,12 @@ bool Solution::isFeasible(){
     }
     t = 1;
     for(int i=0; i < this->recollected.size(); i++){
-        std::cout << this->recollected[i] << '\n';
+        //std::cout << this->recollected[i] << '\n';
         if(this->recollected[i] < this->problemInstance->qualities[i]){
             t = 0;
         }
     }
-    std::cout << "factible post mezcla: "<< t << '\n';
+    //std::cout << "factible post mezcla: "<< t << '\n';
     this->evaluate();
     return t;
 }
@@ -471,13 +528,13 @@ double Solution::evaluate(){
     for (Route *r: this->routes) {
         totalDistance += r->distance;
     }
-    std::cout << "distancia: "<< totalDistance << '\n';
+    //std::cout << "distancia: "<< totalDistance << '\n';
     double milk(0);
     for (int i=0; i < this->recollected.size(); i++){
-        std::cout << "agregando: "<< (double)this->recollected[i] * this->literCost[i] << '\n';
+        //std::cout << "agregando: "<< (double)this->recollected[i] * this->literCost[i] << '\n';
         milk += (double)this->recollected[i] * this->literCost[i];
     }
-    std::cout << "obj: "<< milk - totalDistance * this->kilometerCost << '\n';
+    //std::cout << "obj: "<< milk - totalDistance * this->kilometerCost << '\n';
     return milk - totalDistance * this->kilometerCost;
 }
 
@@ -486,13 +543,13 @@ vector<double> Solution::PercentageLeft(){
     int a;
     for (int i = 0; i < this->recollected.size(); i++) {
         a = this->problemInstance->qualities[i] - this->recollected[i];
-        if (a >= 0){
+        if (a >= 0 && this->problemInstance->qualities[i]!=0){
             r.push_back((double)a/(double)this->problemInstance->qualities[i]);
         }
         else{
             r.push_back(.0);
         }
-        std::cout << "porcentaje de "<< i<< " faltante: "<< r[i]*100 << "%\n";
+        //std::cout << "porcentaje de "<< i<< " faltante: "<< r[i]*100 << "%\n";
     }
     return r;
 }
@@ -503,15 +560,25 @@ double Solution::PunishEvaluate(double punish){
     for (Route *r: this->routes) {
         totalDistance += r->distance;
     }
-    std::cout << "distancia: "<< totalDistance << '\n';
+    //std::cout << "distancia: "<< totalDistance << '\n';
     double milk(0);
     for (int i=0; i < this->recollected.size(); i++){
-        std::cout << "agregando: "<< (double)this->recollected[i] * this->literCost[i] << '\n';
+        //std::cout << "agregando: "<< (double)this->recollected[i] * this->literCost[i] << '\n';
         milk += (double)this->recollected[i] * this->literCost[i];
 
     }
-    std::cout << v[0] << '\n';
-    std::cout << (v[0]*this->literCost[0]*4) << '\n';
-    std::cout << "obj castigado: "<< milk - (totalDistance * this->kilometerCost) - punish*((v[2]*this->literCost[2]*2) + (v[1]*this->literCost[1]*3) + (v[0]*this->literCost[0]*4)) << '\n';
+    //std::cout << "eval distance"<< totalDistance << '\n';
+    //std::cout << "milk: "<< v[0]<< " "<< v[1]<< v[2] << '\n';
+    // std::cout << v[0] << '\n';
+    // std::cout << (v[0]*this->literCost[0]*4) << '\n';
+    //std::cout << "obj castigado: "<< milk - (totalDistance * this->kilometerCost) - punish*((v[2]*this->literCost[2]*2) + (v[1]*this->literCost[1]*3) + (v[0]*this->literCost[0]*4)) << '\n';
     return milk - (totalDistance * this->kilometerCost) - punish*((v[2]*this->literCost[2]*2) + (v[1]*this->literCost[1]*3) + (v[0]*this->literCost[0]*4));
+}
+
+int Solution::getDistance(){
+    int totalDistance;
+    for (Route *r: this->routes) {
+        totalDistance += r->distance;
+    }
+    return totalDistance;
 }

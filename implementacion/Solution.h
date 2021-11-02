@@ -54,6 +54,8 @@ public:
     void removeTruck(Truck *truck);
     void removeNode(Node *node);
     Trip *newTrip(Node *node1, Node *node2, Route *route);
+    void replaceInSolution(Route *newRoute);
+    void resetSolution(const Solution &s2);
 
     int getDemandSubtraction(int dda, int prod);
     Node *getCurrentNode();
@@ -63,6 +65,7 @@ public:
 
     void printAll();
     void printSolution();
+    int getDistance();
     double evaluate();
     double PunishEvaluate(double punish);
 

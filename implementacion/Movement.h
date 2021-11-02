@@ -6,6 +6,7 @@
 #include "ProblemInstance.h"
 #include "Route.h"
 #include "Solution.h"
+#include <cmath>
 
 using namespace std;
 
@@ -22,4 +23,5 @@ public:
 
     double ToptCheck(Solution *solution, int a, int b, Route * routes);
     Route * createNewRoute(int desde, int hasta, Route *route, Solution * solution);
+    void neigborhood(Solution *solution, Route * route);
 };

@@ -276,9 +276,9 @@ void Solution::stepUpdateSolution(Trip *trip, Route *currentRoute, bool repairin
         int tripProduction(trip->finalNode->getProduction());
         this->recollected[trip->finalNode->getTypeIndex()] += tripProduction;
         currentRoute->remainingCapacity -= tripProduction;
-        if (currentRoute->remainingCapacity == 0) {
-            currentRoute->setFull();
-        }
+        // if (currentRoute->remainingCapacity == 0) {
+        //     currentRoute->setFull();
+        // }
         updateDemands(currentRoute->getTypeIndex(), trip->finalNode, currentRoute, tripProduction, repairing);
         removeNode(trip->finalNode);
     }
@@ -289,15 +289,16 @@ void Solution::updateDemands(int currentTypeIndex, Node *currentNode, Route *cur
     bool pos(false);
     for (int i = currentTypeIndex; i < this->unsatisfiedDemand.size(); ++i) {
         int aux(getDemandSubtraction(this->unsatisfiedDemand[i], subtracting));
-        //std::cout << "DEMANDA DE "<< i <<"antes: "<<this->unsatisfiedDemand[i] << '\n';
+        // std::cout << "DEMANDA DE "<< i <<"antes: "<<this->unsatisfiedDemand[i] << '\n';
         if (this->unsatisfiedDemand[i] > 0 || currentRoute->isFull()) {
             pos = true;
         }
+        // std::cout << "pos "<< i << ": "<< pos << '\n';
         this->unsatisfiedDemand[i] -= subtracting;
         subtracting = aux;
         //std::cout << "substracting "<< subtracting << '\n';
-        //std::cout << "DEMANDA DE  despues: "<<this->unsatisfiedDemand[i] << '\n';
-        addBackToPlant(i, currentNode, currentRoute, pos, repairing);
+        // std::cout << "DEMANDA DE  despues: "<<this->unsatisfiedDemand[i] << '\n';
+        //addBackToPlant(i, currentNode, currentRoute, pos, repairing);
     }
 }
 
@@ -405,6 +406,7 @@ void Solution::addBackToPlant(int i, Node *currentNode, Route *currentRoute, boo
             Trip *toPlant = newTrip(currentNode, this->plant, currentRoute);
             currentRoute->distance += toPlant->distance;
             addTrip(toPlant, currentRoute);
+            std::cout << "regreso a planta en addBackToPlant" << '\n';
             int actual(getUnsatisfiedType(0));
             // if ((!repairing) and (actual != -1)) { // nueva ruta para el tipo de dda no satisfecho
             //     addRoute(actual+1);

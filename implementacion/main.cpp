@@ -52,9 +52,12 @@ int main(int argc, char *argv[]) {
 
 
         //comparar si es mejor que la mejorsolucion y reemplazar y reset solution de la que varia
+        std::cout << "/* message */"<< Msolucion->PunishEvaluate(castigo) << '\n';
         if (solucion->PunishEvaluate(castigo) > Msolucion->PunishEvaluate(castigo)){
             Msolucion->resetSolution(*solucion);
         }
+        std::cout << "Msolucion reset1" << '\n';
+        Msolucion->printAll();
 
 
         //tomo la solucion, veo si cambiar con 2opt, le doy un i un j de posicion de la Ruta
@@ -83,13 +86,16 @@ int main(int argc, char *argv[]) {
         if (solucion->PunishEvaluate(castigo) > Msolucion->PunishEvaluate(castigo)){
             Msolucion->resetSolution(*solucion);
         }
-
+        std::cout << "MEJOR SOL post RESET" << '\n';
+        Msolucion->printAll();
         //std::cout << "DetectWrong"<< solucion->DetectWrong() << '\n';
-        solucion->resetSolution(*rsolucion);
+        //solucion->resetSolution(*rsolucion);
         //comparar si es mejor que la mejorsolucion y reemplazar y reset solution de la que varia
 
         //double fo = solucion->evaluate();
-        //solucion->printAll();
+        std::cout << "solucion POST RESET" << '\n';
+        solucion->printAll();
+
         //std::cout << "F.O: "<< fo << '\n';
         delete construct;
         n++;

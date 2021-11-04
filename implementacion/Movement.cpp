@@ -114,7 +114,7 @@ Route *Movement::createNewRoute(int desde, int hasta, Route *route, Solution * s
 void Movement::neigborhood(Solution *solution, Route * route){
     bool debug = 0;
     int size_ruta=route->trips.size();
-    if (size_ruta == 0) return;
+    if (size_ruta < 3) return;
     int start1=solution->random_int_number(0,size_ruta-1);
     int tries1=0;
     while(tries1 < size_ruta){

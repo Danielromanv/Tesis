@@ -14,7 +14,7 @@ int main(int argc, char *argv[]) {
     int seed(atoi(argv[2]));
     int runs(atoi(argv[3]));
     int n =0, c = 0;
-    float slack = 0.75;
+    float slack = 0.0;
     float castigo = 1000;
     srand(seed);
 
@@ -49,56 +49,63 @@ int main(int argc, char *argv[]) {
         construct -> feasibleSolution(solucion, slack);
         solucion->isFeasible();
 
+        if(n == 0){
+            Msolucion->resetSolution(*solucion);
+        }
 
 
         //comparar si es mejor que la mejorsolucion y reemplazar y reset solution de la que varia
-        std::cout << "/* message */"<< Msolucion->PunishEvaluate(castigo) << '\n';
+        //std::cout << "/* message */"<< Msolucion->PunishEvaluate(castigo) << '\n';
         if (solucion->PunishEvaluate(castigo) > Msolucion->PunishEvaluate(castigo)){
             Msolucion->resetSolution(*solucion);
         }
-        std::cout << "Msolucion reset1" << '\n';
-        Msolucion->printAll();
+        //std::cout << "Msolucion reset1" << '\n';
+        //Msolucion->printAll();
 
 
         //tomo la solucion, veo si cambiar con 2opt, le doy un i un j de posicion de la Ruta
         //va devolver la diferencia de distancia
-        std::cout << "PREVIO A 2OPT" << '\n';
+        //std::cout << "PREVIO A 2OPT" << '\n';
 
-        solucion->printAll();
+        //solucion->printAll();
 
         double a = solucion->getDistance(), obj = solucion->PunishEvaluate(castigo),ra,rb;
         for (size_t i = 0; i < solucion->routes.size(); i++) {
             do {
                 ra = solucion->routes[i]->distance;
                 move->neigborhood(solucion, solucion->routes[i]);
+                solucion->routes[i]->DetectWrong();
                 rb = solucion->routes[i]->distance;
             }while(rb < ra);
         }
 
-        std::cout << "Posterior a 2OPT" << '\n';
+        //std::cout << "Posterior a 2OPT" << '\n';
 
-        solucion->printAll();
+        //solucion->printAll();
 
         //double b = solucion->getDistance(), nobj = solucion->PunishEvaluate(castigo);
         //std::cout << "distancia original: "<< a << '\n'<< "nueva distancia: "<< b<<"\nmejora: "<< abs(a-b) <<'\n';
         //std::cout << "Fobj original: "<< obj << '\n'<< "nueva Fobj: "<< nobj <<"\nmejora: "<< abs(obj-nobj) <<'\n';
-        std::cout << "actual = "<< solucion->PunishEvaluate(castigo) << " best = "<< Msolucion->PunishEvaluate(castigo) << '\n';
         if (solucion->PunishEvaluate(castigo) > Msolucion->PunishEvaluate(castigo)){
+            std::cout << "actual = "<< solucion->PunishEvaluate(castigo) << " best = "<< Msolucion->PunishEvaluate(castigo) ;
+            std::cout << "slack = "<< slack << '\n';
             Msolucion->resetSolution(*solucion);
         }
-        std::cout << "MEJOR SOL post RESET" << '\n';
-        Msolucion->printAll();
+        std::cout << "n: "<< n << '\n';
+        //std::cout << "MEJOR SOL post RESET" << '\n';
+        //Msolucion->printAll();
         //std::cout << "DetectWrong"<< solucion->DetectWrong() << '\n';
-        //solucion->resetSolution(*rsolucion);
+        solucion->resetSolution(*rsolucion);
         //comparar si es mejor que la mejorsolucion y reemplazar y reset solution de la que varia
 
         //double fo = solucion->evaluate();
-        std::cout << "solucion POST RESET" << '\n';
-        solucion->printAll();
+        //std::cout << "solucion POST RESET" << '\n';
+        //solucion->printAll();
 
         //std::cout << "F.O: "<< fo << '\n';
         delete construct;
         n++;
+        slack = (float)n/(float)runs;
     }
     std::cout << "actual = "<< solucion->PunishEvaluate(castigo) << " best = "<< Msolucion->PunishEvaluate(castigo) << '\n';
     std::cout << "la solucion \n\n\n\n" << '\n';

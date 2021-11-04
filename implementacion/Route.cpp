@@ -2,14 +2,23 @@
 
 bool Route::DetectWrong(){
     if(this->trips.back()->finalNode->getId() != 0){
+        std::cout << "ruta con problema 0" << '\n';
+        this->printAll();
+        getchar();
         return true;
     }
     else if(this->trips[0]->initialNode != this->trips.back()->finalNode){
+        std::cout << "ruta con problema 1" << '\n';
+        this->printAll();
+        getchar();
         return true;
     }
     for (size_t i = 0; i < this->trips.size(); i++) {
+        //que el nodo de la planta no puede estar en otra posicion que no sea el inicio o final
         if (i != 0 && i != this->trips.size()-1 && (this->trips[i]->initialNode->getId() == 0 || this->trips[i]->finalNode->getId() == 0)){
-            std::cout << "cero antes" << '\n';
+            std::cout << "ruta con problema 0" << '\n';
+            this->printAll();
+            getchar();
             return true;
         }
     }

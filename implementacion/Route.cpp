@@ -1,6 +1,9 @@
 #include "Route.h"
 
 bool Route::DetectWrong(){
+    if(this->distance == 0){
+        return false;
+    }
     if(this->trips.back()->finalNode->getId() != 0){
         std::cout << "ruta con problema 0" << '\n';
         this->printAll();
@@ -16,7 +19,7 @@ bool Route::DetectWrong(){
     for (size_t i = 0; i < this->trips.size(); i++) {
         //que el nodo de la planta no puede estar en otra posicion que no sea el inicio o final
         if (i != 0 && i != this->trips.size()-1 && (this->trips[i]->initialNode->getId() == 0 || this->trips[i]->finalNode->getId() == 0)){
-            std::cout << "ruta con problema 0" << '\n';
+            std::cout << "ruta con problema 2" << '\n';
             this->printAll();
             getchar();
             return true;

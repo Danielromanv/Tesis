@@ -48,6 +48,8 @@ int main(int argc, char *argv[]) {
         Construction *construct = new Construction(0, solucion);
         construct -> feasibleSolution(solucion, slack);
         solucion->isFeasible();
+        // std::cout << "SOLUCION POST CONSTRUCCION" << '\n';
+        // solucion->printAll();
 
         if(n == 0){
             Msolucion->resetSolution(*solucion);
@@ -107,10 +109,7 @@ int main(int argc, char *argv[]) {
         n++;
         slack = (float)n/(float)runs;
     }
-    std::cout << "actual = "<< solucion->PunishEvaluate(castigo) << " best = "<< Msolucion->PunishEvaluate(castigo) << '\n';
-    std::cout << "la solucion \n\n\n\n" << '\n';
-    solucion->printAll();
-    std::cout << "AHORA LA MSol \n\n\n\n" << '\n';
+    std::cout << " best = "<< Msolucion->PunishEvaluate(castigo) << '\n';
     Msolucion->printAll();
     delete problemInstance;
 return 0;

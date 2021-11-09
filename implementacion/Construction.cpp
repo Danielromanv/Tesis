@@ -101,7 +101,7 @@ void Construction::feasibleSolution(Solution *solution, float slack){
         opts.shrink_to_fit();
         }
     }
-    if (!this->currentRoute->isFull()){
+    if (!this->currentRoute->isFull() && this->currentRoute->distance >0){
         Trip * last = solution->newTrip(this->currentNode, solution->plant, this->currentRoute);
         solution->addTrip(last,this->currentRoute);
         solution->stepUpdateSolution(last, this->currentRoute, false);

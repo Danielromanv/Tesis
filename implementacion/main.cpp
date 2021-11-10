@@ -41,9 +41,11 @@ int main(int argc, char *argv[]) {
 
     Solution *solucion = new Solution(problemInstance, seed);
     Solution *rsolucion = new Solution(problemInstance, seed);
+    std::cout << "rsolucion size"<< sizeof(*rsolucion) << '\n';
     Solution *Msolucion = new Solution(problemInstance, seed);
      // Revisar si dejar dentro o fuera
     Movement *move = new Movement();
+
     while (n < runs) {
         Construction *construct = new Construction(0, solucion);
         construct -> feasibleSolution(solucion, slack);
@@ -112,5 +114,10 @@ int main(int argc, char *argv[]) {
     std::cout << " best = "<< Msolucion->PunishEvaluate(castigo) << '\n';
     Msolucion->printAll();
     delete problemInstance;
+    delete move;
+    delete solucion;
+    delete rsolucion;
+    delete Msolucion;
+
 return 0;
 }

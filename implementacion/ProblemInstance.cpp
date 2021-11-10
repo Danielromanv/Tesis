@@ -11,7 +11,7 @@ ProblemInstance::ProblemInstance(int totalNodes){
 ProblemInstance::~ProblemInstance(){
     //cout << "Deleting Problem Instance" << endl;
 
-    for (int i = 0; i < this->getNumberOfNodes(); ++i){
+    for (int i = 0; i <= this->getNumberOfNodes(); ++i){
         delete[] this->distances[i];
     }
     delete[] distances;
@@ -30,6 +30,10 @@ ProblemInstance::~ProblemInstance(){
 
     this->qualities.clear();
     this->qualities.shrink_to_fit();
+
+    this->NodesByType.clear();
+    this->NodesByType.shrink_to_fit();
+
 }
 
 int ProblemInstance::getNumberOfNodes(){ return (int)this->nodes.size(); }

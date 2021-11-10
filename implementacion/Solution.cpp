@@ -44,7 +44,8 @@ Solution::Solution(ProblemInstance *problemInstance, unsigned int seed){
 
 
 Solution::~Solution() {
-//    cout << "Deleting Solution" << endl;
+    cout << "Deleting Solution" << endl;
+    std::cout << "recollected: "<< this->recollected[0] << '\n';
     this->recollected.clear();
     this->recollected.shrink_to_fit();
 
@@ -68,8 +69,8 @@ Solution::~Solution() {
 
     this->problemInstance = nullptr;
 
-//    delete (this->plant);
-//    this->plant = nullptr;
+   delete (this->plant);
+   this->plant = nullptr;
 
     this->literCost.clear();
     this->literCost.shrink_to_fit();

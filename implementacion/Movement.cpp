@@ -1,8 +1,8 @@
 #include "Movement.h"
 
-Movement::Movement():bestDistance(1000){};
+Movement::Movement():bestDistance(1000),bestIndex(0){this->node = nullptr;};
 
-Movement::~Movement()=default;
+Movement::~Movement()= default;
 
 double Movement::ToptCheck(Solution *solution, int a, int b, Route * route){
     double org = route->distance, now = 0;

@@ -54,11 +54,15 @@ void Construction::feasibleSolution(Solution *solution, float slack){
                     solution->addTrip(opts[selected],this->currentRoute);
                     solution->stepUpdateSolution(opts[selected], this->currentRoute, false);
                     this->currentNode = opts[selected]->finalNode;
+                    opts.clear();
+                    opts.shrink_to_fit();
                 }
                 else{
                     solution->addTrip(opts.front(),this->currentRoute);
                     solution->stepUpdateSolution(opts.front(), this->currentRoute, false);
                     this->currentNode = opts.front()->finalNode;
+                    opts.clear();
+                    opts.shrink_to_fit();
                 }
                 //this->currentRoute->printAll();
                 //std::cout << "remaining: "<< this->currentRoute->remainingCapacity << '\n';

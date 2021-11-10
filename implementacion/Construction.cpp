@@ -45,15 +45,19 @@ void Construction::feasibleSolution(Solution *solution, float slack){
                 sort(opts.begin(), opts.end(), sortByDistance);
                 // std::cout << "opciones" << '\n';
                 // for (Trip *t: opts){
-                    // t->printAll();
+                //     t->printAll();
                 // }
-                // std::cout <<'\n';
+
 
                 if (this->currentRoute->distance == 0){
                     int selected = rand() % opts.size();
                     solution->addTrip(opts[selected],this->currentRoute);
                     solution->stepUpdateSolution(opts[selected], this->currentRoute, false);
                     this->currentNode = opts[selected]->finalNode;
+                    opts.erase(opts.begin()+(selected));
+                    for(Trip *t: opts){
+                        delete t;
+                    }
                     opts.clear();
                     opts.shrink_to_fit();
                 }
@@ -61,6 +65,10 @@ void Construction::feasibleSolution(Solution *solution, float slack){
                     solution->addTrip(opts.front(),this->currentRoute);
                     solution->stepUpdateSolution(opts.front(), this->currentRoute, false);
                     this->currentNode = opts.front()->finalNode;
+                    opts.erase(opts.begin());
+                    for(Trip *t: opts){
+                        delete t;
+                    }
                     opts.clear();
                     opts.shrink_to_fit();
                 }
@@ -77,6 +85,11 @@ void Construction::feasibleSolution(Solution *solution, float slack){
                         solution->addRoute(i+1);
                         this->currentRoute = solution->routes.back();
                         this->currentNode = solution->plant;
+                        for(Trip *t: opts){
+                            delete t;
+                        }
+                        opts.clear();
+                        opts.shrink_to_fit();
                         // std::cout << "Ruta Completa" << '\n';
                         // this->currentRoute->printAll();
                         break;
@@ -91,6 +104,11 @@ void Construction::feasibleSolution(Solution *solution, float slack){
                         // std::cout << "cambio forzado" << '\n';
                         // this->currentRoute->printAll();
                         // std::cout << "del cambio forzado" << '\n';
+                        for(Trip *t: opts){
+                            delete t;
+                        }
+                        opts.clear();
+                        opts.shrink_to_fit();
                         break;
                     }
                 }
@@ -101,6 +119,9 @@ void Construction::feasibleSolution(Solution *solution, float slack){
                 //     this->currentRoute->setFull();
                 // }
             }
+        for(Trip *t: opts){
+            delete t;
+        }
         opts.clear();
         opts.shrink_to_fit();
         }

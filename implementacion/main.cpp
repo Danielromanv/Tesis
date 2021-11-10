@@ -41,7 +41,6 @@ int main(int argc, char *argv[]) {
 
     Solution *solucion = new Solution(problemInstance, seed);
     Solution *rsolucion = new Solution(problemInstance, seed);
-    std::cout << "rsolucion size"<< sizeof(*rsolucion) << '\n';
     Solution *Msolucion = new Solution(problemInstance, seed);
      // Revisar si dejar dentro o fuera
     Movement *move = new Movement();
@@ -91,11 +90,11 @@ int main(int argc, char *argv[]) {
         //std::cout << "distancia original: "<< a << '\n'<< "nueva distancia: "<< b<<"\nmejora: "<< abs(a-b) <<'\n';
         //std::cout << "Fobj original: "<< obj << '\n'<< "nueva Fobj: "<< nobj <<"\nmejora: "<< abs(obj-nobj) <<'\n';
         if (solucion->PunishEvaluate(castigo) > Msolucion->PunishEvaluate(castigo)){
-            std::cout << "actual = "<< solucion->PunishEvaluate(castigo) << " best = "<< Msolucion->PunishEvaluate(castigo) ;
-            std::cout << "slack = "<< slack << '\n';
+            // std::cout << "actual = "<< solucion->PunishEvaluate(castigo) << " best = "<< Msolucion->PunishEvaluate(castigo) ;
+            // std::cout << "slack = "<< slack << '\n';
             Msolucion->resetSolution(*solucion);
         }
-        std::cout << "n: "<< n << '\n';
+        //std::cout << "n: "<< n << '\n';
         //std::cout << "MEJOR SOL post RESET" << '\n';
         //Msolucion->printAll();
         //std::cout << "DetectWrong"<< solucion->DetectWrong() << '\n';
@@ -111,8 +110,9 @@ int main(int argc, char *argv[]) {
         n++;
         slack = (float)n/(float)runs;
     }
-    std::cout << " best = "<< Msolucion->PunishEvaluate(castigo) << '\n';
-    Msolucion->printAll();
+    //std::cout << " best = "<< Msolucion->PunishEvaluate(castigo) << '\n';
+    std::cout << Msolucion->PunishEvaluate(castigo) << '\n';
+    //Msolucion->printAll();
     delete problemInstance;
     delete move;
     delete solucion;

@@ -44,8 +44,8 @@ Solution::Solution(ProblemInstance *problemInstance, unsigned int seed){
 
 
 Solution::~Solution() {
-    cout << "Deleting Solution" << endl;
-    std::cout << "recollected: "<< this->recollected[0] << '\n';
+    // cout << "Deleting Solution" << endl;
+    
     this->recollected.clear();
     this->recollected.shrink_to_fit();
 

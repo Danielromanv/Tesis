@@ -12,7 +12,7 @@ public:
     Truck *truck;
     vector<Trip *> trips;
     int remainingCapacity;
-    int type;
+    int type;//1,2,3
     bool full;
     double distance;
 

@@ -19,6 +19,7 @@ Construction::~Construction(){
 void Construction::feasibleSolution(Solution *solution, float slack){
     vector<int> real = getRealDemand(solution);
     for(int i = 0; i < solution->problemInstance->getNumberOfQualities(); ++i){
+
         // std::cout << "Nodos iteracion tipo "<< i << '\n';
         //for (Node *n: solution->problemInstance->NodesByType[i]){n->printAll();}
         while (solution->getUnsatisfiedType(i) != -1 || this->currentRoute->remainingCapacity > 0 || solution->recollected[i] < real[i] ) {
@@ -42,6 +43,10 @@ void Construction::feasibleSolution(Solution *solution, float slack){
                 }
             }
             if (opts.size() > 0){
+                if (this->currentRoute->getTypeIndex() != i){
+                    this->currentRoute->type = i+1;
+                    std::cout << "ruta y tipo"<<  this->currentRoute->id << this->currentRoute->type << '\n';
+                }
                 sort(opts.begin(), opts.end(), sortByDistance);
                 // std::cout << "opciones" << '\n';
                 // for (Trip *t: opts){

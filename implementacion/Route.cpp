@@ -86,7 +86,7 @@ void Route::printAll() {
         aux += trip->benefit;
     }
     cout << "Route: " << this->getId() << "\ttruck: " << this->truck->getId() << "\tmilk type: " << this->type << "\tisFull: "
-         << this->full << "\ttotal benefit: " << aux << endl;
+         << this->full << endl;
     cout << "Num. of trips: " << this->trips.size() << "\tremaining Capacity: " << this->remainingCapacity << "\tdistance: " << this->distance << endl;
     for(Trip *trip: this->trips){
         trip->printAll();

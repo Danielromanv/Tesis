@@ -18,9 +18,8 @@ int main(int argc, char *argv[]) {
     float castigo = 1000;
     srand(seed);
 
-    clock_t t0, t1, t2, timeToBest;
+    clock_t tStart = clock();
 
-    t0 = clock();
     Reader r(to_string(instance));
 
     cout << "For instance " << instance << " seed " << seed << endl;
@@ -111,8 +110,11 @@ int main(int argc, char *argv[]) {
         slack = (float)n/(float)runs;
     }
     //std::cout << " best = "<< Msolucion->PunishEvaluate(castigo) << '\n';
-    std::cout << Msolucion->PunishEvaluate(castigo) << '\n';
-    //Msolucion->printAll();
+
+    Msolucion->printAll();
+    std::cout << Msolucion->PunishEvaluate(castigo)<< " "<< (double)(clock() - tStart)/CLOCKS_PER_SEC << '\n';
+    double * m = move->MovCheck(Msolucion,1,1,3,2,Msolucion->routes[3], Msolucion->routes[4],castigo);
+    std::cout << m[0]<< " " << m[1] << '\n';
     delete problemInstance;
     delete move;
     delete solucion;

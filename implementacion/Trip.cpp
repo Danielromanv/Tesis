@@ -24,7 +24,7 @@ void Trip::printAll() {
     cout << "Trip: " << this->routeId << "\t" << this->initialNode->getId() << " - "
          << this->finalNode->getId() << "\tT: "
          << this->finalNode->getType() << "\tP: " << this->finalNode->getProduction() << "\tD: "
-         << this->distance << "\tB: " << this->benefit << endl;
+         << this->distance << endl;
 }
 
 bool sortByDistance(const Trip *t1, const Trip *t2){ return t1->distance < t2->distance; }

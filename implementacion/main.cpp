@@ -113,7 +113,8 @@ int main(int argc, char *argv[]) {
 
     Msolucion->printAll();
     std::cout << Msolucion->PunishEvaluate(castigo)<< " "<< (double)(clock() - tStart)/CLOCKS_PER_SEC << '\n';
-    double * m = move->MovCheck(Msolucion,0,0,1,1,Msolucion->routes[3], Msolucion->routes[4],castigo);
+    double * m = move->MovCheck(Msolucion,0,1,1,2,Msolucion->routes[6], Msolucion->routes[4],castigo);
+    move->ChangeTrip(Msolucion,1,1,3,2,Msolucion->routes[3], Msolucion->routes[4],castigo);
     std::cout << m[0]<< " " << m[1] << '\n';
     delete problemInstance;
     delete move;

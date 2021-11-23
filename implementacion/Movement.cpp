@@ -178,7 +178,7 @@ double * Movement::MovCheck(Solution *solution, int a, int b, int la, int lb, Ro
             Db += routeA->trips[i]->distance;
             // std::cout << "Sumo a B: "<< routeA->trips[i]->distance << '\n';
             }
-            if(routeA->trips[i]->finalNode->getTypeIndex() < Tb){
+            if(routeA->trips[i]->finalNode->getTypeIndex() > Tb){
                 Tb = routeA->trips[i]->finalNode->getTypeIndex();
             }
             i++;
@@ -192,7 +192,7 @@ double * Movement::MovCheck(Solution *solution, int a, int b, int la, int lb, Ro
                 Da += routeB->trips[j]->distance;
                 // std::cout << "suma a A: "<< routeB->trips[j]->distance << '\n';
             }
-            if(routeB->trips[j]->finalNode->getTypeIndex() < Ta){
+            if(routeB->trips[j]->finalNode->getTypeIndex() > Ta){
                 Ta = routeB->trips[j]->finalNode->getTypeIndex();
             }
             j++;
@@ -218,16 +218,7 @@ double * Movement::MovCheck(Solution *solution, int a, int b, int la, int lb, Ro
     Db += solution->problemInstance->getDistance(routeA->trips[a+la-1]->finalNode,routeB->trips[b+lb]->finalNode)+solution->problemInstance->getDistance(routeB->trips[b]->initialNode,routeA->trips[a]->finalNode);
     // std::cout << "Da: "<< Da << '\n';
     // std::cout << "Db: "<< Db << '\n';
-    // if(a == 0 && b != 0){
-    //     Da += solution->problemInstance->getDistance(routeB->trips[b]->finalNode,routeA->trips[a+a+la]->finalNode) + solution->problemInstance->getDistance(routeA->trips[a]->initialNode,routeB->trips[b]->finalNode) - routeB->trips[b]->distance;
-    //     Db += solution->problemInstance->getDistance(routeB->trips[b-1]->finalNode,routeA->trips[a]->finalNode);
-        // std::cout << "a" << '\n';
-    // }
-    // if(b == 0 && a != 0){
-    //     Da += solution->problemInstance->getDistance(routeA->trips[a]->initialNode,routeB->trips[b]->finalNode) + solution->problemInstance->getDistance(routeB->trips[b]->finalNode,routeA->trips[a+1]->finalNode)  - routeA->trips[a+1]->distance ;
-    //     Db += solution->problemInstance->getDistance(routeB->trips[b]->initialNode,routeA->trips[a]->finalNode) + solution->problemInstance->getDistance(routeA->trips[a]->finalNode,routeB->trips[b+1]->finalNode)  - routeA->trips[a]->distance - routeB->trips[b+1]->distance;
-        // std::cout << "b" << '\n';
-    // }
+
     if ((routeA->remainingCapacity + Sa)>=Sb && (routeB->remainingCapacity + Sb)>=Sa){r[0] = 1;}
     else{r[0] = -1;}
     double ev = solution->PunishEvaluate(punish), ev2 = this->MovEvaluate(solution, punish, routeA, routeB,Sa,Sb,Da,Db,Ta,Tb);
@@ -244,12 +235,12 @@ double * Movement::MovCheck(Solution *solution, int a, int b, int la, int lb, Ro
 double Movement::MovEvaluate(Solution *solution,double punish, Route * routeA, Route * routeB, double Sa, double Sb, double Da, double Db, int Ta, int Tb){
     double totalDistance(0), recollected[solution->problemInstance->qualities.size()];
     memset (recollected, 0, sizeof(recollected));
-    for (Route *r: solution->routes) {
-        if ((r != routeA) && (r != routeB)){
-            recollected[r->getTypeIndex()] += r->truck->getTotalCapacity()- r->remainingCapacity;
-            totalDistance += r->distance;
-        }
-    }
+    // for (Route *r: solution->routes) { Me lo puedo Ahorrar
+    //     if ((r != routeA) && (r != routeB)){
+    //         recollected[r->getTypeIndex()] += r->truck->getTotalCapacity()- r->remainingCapacity;
+    //         totalDistance += r->distance;
+    //     }
+    // }
     totalDistance += Da+Db;
     recollected[Ta] += routeA->truck->getTotalCapacity() - routeA->remainingCapacity - Sa + Sb;
     recollected[Tb] += routeB->truck->getTotalCapacity() - routeB->remainingCapacity - Sb + Sa;
@@ -276,4 +267,119 @@ double Movement::MovEvaluate(Solution *solution,double punish, Route * routeA, R
     // std::cout << (v[0]*solution->literCost[0]*4) << '\n';
     //std::cout << "obj castigado: "<< milk - (totalDistance * solution->kilometerCost) - punish*((v[2]*solution->literCost[2]*2) + (v[1]*solution->literCost[1]*3) + (v[0]*solution->literCost[0]*4)) << '\n';
     return milk - (totalDistance * solution->kilometerCost) - punish*((v[2]*solution->literCost[2]*2) + (v[1]*solution->literCost[1]*3) + (v[0]*solution->literCost[0]*4));
+}
+
+void Movement::ChangeTrip(Solution *solution, int a, int b, int la, int lb, Route * routeA, Route * routeB, double punish){
+    bool debug = 1;
+    int i = 0;
+    auto newRouteA = new Route(routeA->getId(), routeA->truck, 0);
+    auto newRouteB = new Route(routeB->getId(), routeB->truck, 0);
+    newRouteA->remainingCapacity = routeA->remainingCapacity;
+    newRouteA->full = routeA->full;
+    newRouteB->remainingCapacity = routeB->remainingCapacity;
+    newRouteB->full = routeB->full;
+    std::cout << "LLamado 1" << '\n';
+    this->ChangeRTrip(solution, a, b, la, lb, routeA, routeB, punish);
+    std::cout << "LLamado 2" << '\n';
+    this->ChangeRTrip(solution, b, a, lb, la, routeB, routeA, punish);
+    delete newRouteA;
+    delete newRouteB;
+    return;
+}
+
+void Movement::ChangeRTrip(Solution *solution, int a, int b, int la, int lb, Route * routeA, Route * routeB, double punish){
+    bool debug = 0;
+    int i = 0;
+    auto newRoute = new Route(routeA->getId(), routeA->truck, 0);
+    auto newRouteB = new Route(routeB->getId(), routeB->truck, 0);
+    newRoute->remainingCapacity = routeA->remainingCapacity;
+    newRoute->full = routeA->full;
+    for(Trip *t: routeA->trips){ //Recorremos los trips que deben cambiar
+
+        if(i < a){
+            //Esto son los anteriores al punto de cambio
+            //std::cout << "se agrega: "<< t->initialNode->getId()<< " -> "<< route->trips[hasta]->initialNode->getId() << '\n';
+            auto trip = new Trip(t->initialNode, t->finalNode, solution->problemInstance->getDistance(t->initialNode, t->finalNode), t->finalNode->getType());
+            trip->routeId = routeA->getId();
+            newRoute->distance += trip->distance;
+
+            if (debug) t->printAll();
+            if (debug) trip->printAll();
+            if (debug) getchar();
+
+            if (t->finalNode->getType() > newRoute->getType()){
+                newRoute->type =t->finalNode->getType();
+            }
+            newRoute->trips.push_back(trip);
+
+        }
+        if (i == a){
+            //aquí se agrega un trip nuevo que incluye el incial de la ruta con el final inicial de la otra
+
+            auto trip = new Trip(t->initialNode, routeB->trips[b]->finalNode, solution->problemInstance->getDistance(routeA->trips[a]->initialNode,routeB->trips[b]->finalNode), routeB->trips[b]->finalNode->getType());
+            trip->routeId = routeA->getId();
+            newRoute->distance += trip->distance;
+
+            if (debug) t->printAll();
+            if (debug) trip->printAll();
+            //if (debug) getchar() << '\n';
+            if (routeB->trips[b]->finalNode->getType() > newRoute->getType()){
+                newRoute->type = routeB->trips[b]->finalNode->getType();
+            }
+            newRoute->trips.push_back(trip);
+        }
+        if (i == a+1){
+            //std::cout << "aqui no se si agregar con un for todos los otros, y con otro indice" << '\n';
+            if(lb > 1){
+                for (size_t j = b+1; j < b+lb; j++) {
+                    auto trip = new Trip(routeB->trips[j]->initialNode, routeB->trips[j]->finalNode, routeB->trips[j]->distance, routeB->trips[j]->quality);
+                    trip->routeId = routeA->getId();
+                    newRoute->distance += trip->distance;
+
+                    if (debug) t->printAll();
+                    if (debug) trip->printAll();
+                    if (debug) getchar();
+
+                    if (routeB->trips[j]->finalNode->getType() > newRoute->getType()){
+                        newRoute->type = routeB->trips[b]->finalNode->getType();
+                    }
+                    newRoute->trips.push_back(trip);
+                }
+            }
+        }
+        if (i == a+la){
+            auto trip = new Trip(routeB->trips[b+lb-1]->finalNode, t->finalNode, solution->problemInstance->getDistance(routeB->trips[b+lb-1]->finalNode, t->finalNode), t->finalNode->getType());
+            trip->routeId = routeA->getId();
+            newRoute->distance += trip->distance;
+            if (debug) t->printAll();
+            if (debug) trip->printAll();
+            if (debug) getchar();
+
+            if (t->finalNode->getType() > newRoute->getType()){
+                newRoute->type = t->finalNode->getType();
+            }
+            newRoute->trips.push_back(trip);
+        }
+        if(i > a+la){
+            //Esto son los anteriores al punto de cambio
+            //std::cout << "se agrega: "<< t->initialNode->getId()<< " -> "<< route->trips[hasta]->initialNode->getId() << '\n';
+            auto trip = new Trip(t->initialNode, t->finalNode, solution->problemInstance->getDistance(t->initialNode, t->finalNode), t->finalNode->getType());
+            trip->routeId = routeA->getId();
+            newRoute->distance += trip->distance;
+
+            if (debug) t->printAll();
+            if (debug) trip->printAll();
+            if (debug) getchar();
+
+            if (t->finalNode->getType() > newRoute->getType()){
+                newRoute->type = t->finalNode->getType();
+            }
+            newRoute->trips.push_back(trip);
+        }
+
+        i++;
+    }
+    newRoute->printAll();
+    delete newRoute;
+    return;
 }

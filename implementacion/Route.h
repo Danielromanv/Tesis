@@ -25,6 +25,7 @@ public:
     int getId();
     int getTypeIndex();
     int getType();
+    void CheckType();
     bool isFull();
 
     void resetRouteType();

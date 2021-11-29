@@ -53,6 +53,7 @@ public:
     void insertNode(Node *node);
     void removeTruck(Truck *truck);
     void removeNode(Node *node);
+    void removeTrip(int tripIndex, Route *route);
     Trip *newTrip(Node *node1, Node *node2, Route *route);
     void replaceInSolution(Route *newRoute);
     void resetSolution(const Solution &s2);

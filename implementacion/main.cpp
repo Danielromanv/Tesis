@@ -48,8 +48,7 @@ int main(int argc, char *argv[]) {
         Construction *construct = new Construction(0, solucion);
         construct -> feasibleSolution(solucion, slack);
         solucion->isFeasible();
-        // std::cout << "SOLUCION POST CONSTRUCCION" << '\n';
-        // solucion->printAll();
+
 
         if(n == 0){
             Msolucion->resetSolution(*solucion);
@@ -57,65 +56,69 @@ int main(int argc, char *argv[]) {
 
 
         //comparar si es mejor que la mejorsolucion y reemplazar y reset solution de la que varia
-        //std::cout << "/* message */"<< Msolucion->PunishEvaluate(castigo) << '\n';
         if (solucion->PunishEvaluate(castigo) > Msolucion->PunishEvaluate(castigo)){
             Msolucion->resetSolution(*solucion);
         }
-        //std::cout << "Msolucion reset1" << '\n';
-        //Msolucion->printAll();
 
+        double ra,rb;
 
         //tomo la solucion, veo si cambiar con 2opt, le doy un i un j de posicion de la Ruta
         //va devolver la diferencia de distancia
-        //std::cout << "PREVIO A 2OPT" << '\n';
 
-        //solucion->printAll();
-
-        double a = solucion->getDistance(), obj = solucion->PunishEvaluate(castigo),ra,rb;
-        for (size_t i = 0; i < solucion->routes.size(); i++) {
-            do {
-                ra = solucion->routes[i]->distance;
-                move->neigborhood(solucion, solucion->routes[i]);
-                solucion->routes[i]->DetectWrong();
-                rb = solucion->routes[i]->distance;
-            }while(rb < ra);
+        //While haciendo exchanges entre rutas con parametro de steps
+        int m = 0;
+        int steps = 10;
+        while(m < steps){
+            for (size_t i = 0; i < solucion->routes.size()-1; i++) {
+                //Elegir la Ruta A
+                for (size_t j = i+1; j < solucion->routes.size(); j++) {
+                    //Elegir la ruta B
+                    move->ExNeiborhood(solucion, solucion->routes[i], solucion->routes[j],castigo);
+                }
+            }
+            for (size_t i = 0; i < solucion->routes.size(); i++) {
+                do {
+                    ra = solucion->routes[i]->distance;
+                    move->ToptNeigborhood(solucion, solucion->routes[i]);
+                    solucion->routes[i]->DetectWrong();
+                    rb = solucion->routes[i]->distance;
+                }while(rb < ra);
+            }
+            // if (solution->random_number(0,1) < 0.1){
+                // Numero aleatorio para decidir cuantas vamos a sacar y cuantas agregar
+                //de una ruta aleatorias
+            // }
+            m++;
         }
 
-        //std::cout << "Posterior a 2OPT" << '\n';
 
-        //solucion->printAll();
-
-        //double b = solucion->getDistance(), nobj = solucion->PunishEvaluate(castigo);
-        //std::cout << "distancia original: "<< a << '\n'<< "nueva distancia: "<< b<<"\nmejora: "<< abs(a-b) <<'\n';
-        //std::cout << "Fobj original: "<< obj << '\n'<< "nueva Fobj: "<< nobj <<"\nmejora: "<< abs(obj-nobj) <<'\n';
         if (solucion->PunishEvaluate(castigo) > Msolucion->PunishEvaluate(castigo)){
-            // std::cout << "actual = "<< solucion->PunishEvaluate(castigo) << " best = "<< Msolucion->PunishEvaluate(castigo) ;
-            // std::cout << "slack = "<< slack << '\n';
             Msolucion->resetSolution(*solucion);
         }
-        //std::cout << "n: "<< n << '\n';
-        //std::cout << "MEJOR SOL post RESET" << '\n';
-        //Msolucion->printAll();
-        //std::cout << "DetectWrong"<< solucion->DetectWrong() << '\n';
+
         solucion->resetSolution(*rsolucion);
         //comparar si es mejor que la mejorsolucion y reemplazar y reset solution de la que varia
 
-        //double fo = solucion->evaluate();
-        //std::cout << "solucion POST RESET" << '\n';
-        //solucion->printAll();
 
-        //std::cout << "F.O: "<< fo << '\n';
         delete construct;
         n++;
         slack = (float)n/(float)runs;
     }
     //std::cout << " best = "<< Msolucion->PunishEvaluate(castigo) << '\n';
-
     Msolucion->printAll();
     std::cout << Msolucion->PunishEvaluate(castigo)<< " "<< (double)(clock() - tStart)/CLOCKS_PER_SEC << '\n';
-    double * m = move->MovCheck(Msolucion,0,1,1,2,Msolucion->routes[6], Msolucion->routes[4],castigo);
-    move->ChangeTrip(Msolucion,1,1,3,2,Msolucion->routes[3], Msolucion->routes[4],castigo);
-    std::cout << m[0]<< " " << m[1] << '\n';
+    //double * m = move->ExCheck(Msolucion,0,1,1,2,Msolucion->routes[6], Msolucion->routes[4],castigo);
+    //move->ChangeTrip(Msolucion,1,1,2,1,Msolucion->routes[0], Msolucion->routes[4],castigo);
+    //std::cout << m[0]<< " " << m[1] << '\n';
+
+
+
+    // move->getCandidates(Msolucion,2);
+    // move->RemoveFromRoute(Msolucion,0);
+    Msolucion->printAll();
+    move->AddCandidates(Msolucion);
+    Msolucion->printAll();
+    //Msolucion->printAll();
     delete problemInstance;
     delete move;
     delete solucion;

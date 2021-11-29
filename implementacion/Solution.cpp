@@ -45,7 +45,7 @@ Solution::Solution(ProblemInstance *problemInstance, unsigned int seed){
 
 Solution::~Solution() {
     // cout << "Deleting Solution" << endl;
-    
+
     this->recollected.clear();
     this->recollected.shrink_to_fit();
 
@@ -238,19 +238,63 @@ void Solution::removeTruck(Truck *truck) {
     this->unusedTrucks.erase(this->unusedTrucks.begin() + index);
 }
 void Solution::insertTrip(Route *route, int index, Node *node) {
-    Trip *modifiedNode = route->trips[index];
-    route->distance -= modifiedNode->distance;
-    Trip *newTrip = this->newTrip(modifiedNode->initialNode, node, route);
+    this->removeNode(node);
+    if (route->trips.size() > 0){
+        this->recollected[route->getTypeIndex()] -= route->truck->getTotalCapacity()- route->remainingCapacity;
 
-    modifiedNode->initialNode = node;
-    modifiedNode->distance = this->problemInstance->getDistance(modifiedNode->initialNode, modifiedNode->finalNode);
+        Trip *modifiedNode = route->trips[index];
+        route->distance -= modifiedNode->distance;
+        Trip *newTrip = this->newTrip(modifiedNode->initialNode, node, route);
 
-    route->distance += modifiedNode->distance + newTrip->distance;
-    route->remainingCapacity -= newTrip->finalNode->getProduction();
+        modifiedNode->initialNode = node;
+        modifiedNode->distance = this->problemInstance->getDistance(modifiedNode->initialNode, modifiedNode->finalNode);
 
-    route->trips.insert(route->trips.begin() + index, newTrip);
+        route->distance += modifiedNode->distance + newTrip->distance;
+        route->remainingCapacity -= newTrip->finalNode->getProduction();
+        if (newTrip->finalNode->getTypeIndex() > route->getTypeIndex()){
+            route->type = newTrip->finalNode->getType();
+        }
+        this->recollected[route->getTypeIndex()] += (route->truck->getTotalCapacity()- route->remainingCapacity);
+
+        route->trips.insert(route->trips.begin() + index, newTrip);
+    }
+    else{
+        Trip *initial = this->newTrip(this->plant, node, route);
+        Trip *final = this->newTrip(node, this->plant, route);
+        route->distance += initial->distance + final->distance;
+        route->type = initial->finalNode->getType();
+        this->recollected[route->getTypeIndex()] += initial->finalNode->getProduction();
+        route->remainingCapacity -= initial->finalNode->getProduction();
+        route->trips.push_back(initial);
+        route->trips.push_back(final);
+    }
 }
 
+void Solution::removeTrip(int tripIndex, Route *route) {
+    Trip *currentTrip = route->trips[tripIndex]; // 0-x
+    Trip *nextTrip = route->trips[tripIndex + 1];// x-0
+    this->recollected[route->getTypeIndex()] -= route->truck->getTotalCapacity()- route->remainingCapacity;
+
+    route->distance -= currentTrip->distance + nextTrip->distance;//0
+
+    nextTrip->initialNode = currentTrip->initialNode; //x-0 -> 0-0
+    nextTrip->distance = this->problemInstance->getDistance(nextTrip->initialNode, nextTrip->finalNode);//0
+
+    route->distance += nextTrip->distance;//0
+    route->remainingCapacity += currentTrip->finalNode->getProduction();//0
+    this->addNode(currentTrip->finalNode);
+
+    route->trips.erase(route->trips.begin() + tripIndex); // borrar 0-x
+
+    route->CheckType();
+    if(route->trips.size() > 1){
+        this->recollected[route->getTypeIndex()] += (route->truck->getTotalCapacity()- route->remainingCapacity);
+    }
+    else{
+        route->trips.erase(route->trips.begin());
+        route->type = 0;
+    }
+}
 
 Trip *Solution::newTrip(Node *node1, Node *node2, Route *route) {
     int distance(problemInstance->getDistance(node1, node2));
@@ -258,6 +302,7 @@ Trip *Solution::newTrip(Node *node1, Node *node2, Route *route) {
     trip->setRouteId(route->getId());
     return trip;
 }
+
 
 Node *Solution::getCurrentNode() {
     if (this->routes.back()->trips.empty()) {

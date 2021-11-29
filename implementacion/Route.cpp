@@ -92,3 +92,13 @@ void Route::printAll() {
         trip->printAll();
     }
 }
+
+void Route::CheckType() {
+    int type = 0;
+    for (Trip *t: this->trips) {
+        if (t->finalNode->getTypeIndex() > type){
+            type = t->finalNode->getTypeIndex();
+        }
+    }
+    this->type = type+1;
+}

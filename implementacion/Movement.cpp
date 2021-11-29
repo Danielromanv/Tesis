@@ -114,7 +114,7 @@ Route *Movement::createNewRoute(int desde, int hasta, Route *route, Solution * s
 }
 
 
-void Movement::neigborhood(Solution *solution, Route * route){
+void Movement::ToptNeigborhood(Solution *solution, Route * route){
     bool debug = 0;
     int size_ruta=route->trips.size();
     if (size_ruta < 3) return;
@@ -158,11 +158,11 @@ void Movement::neigborhood(Solution *solution, Route * route){
     return;
 }
 
-double * Movement::MovCheck(Solution *solution, int a, int b, int la, int lb, Route * routeA, Route * routeB, double punish){
+double * Movement::ExCheck(Solution *solution, int a, int b, int la, int lb, Route * routeA, Route * routeB, double punish){
     double Da=routeA->distance,Db=routeB->distance,Sa=0,Sb=0;
     int i = a, j = b, Ta=routeA->getTypeIndex(),Tb=routeB->getTypeIndex();
     static double r[2];
-    if (a+la-1 > routeA->trips.size()-1 || b+lb-1 > routeB->trips.size()-1 || la == 0 || lb == 0){
+    if ((a+la >= routeA->trips.size()) || (b+lb >= routeB->trips.size()) || la == 0 || lb == 0){
         r[0] = 0;
         return r;
     }
@@ -221,18 +221,22 @@ double * Movement::MovCheck(Solution *solution, int a, int b, int la, int lb, Ro
 
     if ((routeA->remainingCapacity + Sa)>=Sb && (routeB->remainingCapacity + Sb)>=Sa){r[0] = 1;}
     else{r[0] = -1;}
-    double ev = solution->PunishEvaluate(punish), ev2 = this->MovEvaluate(solution, punish, routeA, routeB,Sa,Sb,Da,Db,Ta,Tb);
-    std::cout << "Ev original: "<< ev << '\n';
-    std::cout << "Ev cambio: "<< ev2 << '\n';
-
-    // std::cout << "Cambios en Distancia A: Se quita "<< routeA->distance << " se suma "<< Da << " Se quita de leche "<< Sa << " Y se agrega " << Sb << '\n';
+    double ev = solution->PunishEvaluate(punish), ev2 = this->ExEvaluate(solution, punish, routeA, routeB,Sa,Sb,Da,Db,Ta,Tb);
+    if (ev2-ev > 0 && r[0] == 1){
+    // std::cout << "Ev original: "<< ev << '\n';
+    // std::cout << "Ev cambio: "<< ev2 << '\n';
+    // std::cout << "diferencia: "<< ev2-ev << '\n';
+    // std::cout << "factible: "<< r[0] << '\n';
     // std::cout << "Cambios en Distancia B: Se quita "<< routeB->distance << " se suma "<< Db << " Se quita de leche "<< Sb << " Y se agrega " << Sa << '\n';
+    // std::cout << "Cambios en Distancia A: Se quita "<< routeA->distance << " se suma "<< Da << " Se quita de leche "<< Sa << " Y se agrega " << Sb << '\n';
+}
+
     r[1] = ev2-ev;
     return r;
 
 }
 
-double Movement::MovEvaluate(Solution *solution,double punish, Route * routeA, Route * routeB, double Sa, double Sb, double Da, double Db, int Ta, int Tb){
+double Movement::ExEvaluate(Solution *solution,double punish, Route * routeA, Route * routeB, double Sa, double Sb, double Da, double Db, int Ta, int Tb){
     double totalDistance(0), recollected[solution->problemInstance->qualities.size()];
     memset (recollected, 0, sizeof(recollected));
     // for (Route *r: solution->routes) { Me lo puedo Ahorrar
@@ -270,29 +274,36 @@ double Movement::MovEvaluate(Solution *solution,double punish, Route * routeA, R
 }
 
 void Movement::ChangeTrip(Solution *solution, int a, int b, int la, int lb, Route * routeA, Route * routeB, double punish){
-    bool debug = 1;
+    bool debug = 0;
     int i = 0;
-    auto newRouteA = new Route(routeA->getId(), routeA->truck, 0);
-    auto newRouteB = new Route(routeB->getId(), routeB->truck, 0);
-    newRouteA->remainingCapacity = routeA->remainingCapacity;
-    newRouteA->full = routeA->full;
-    newRouteB->remainingCapacity = routeB->remainingCapacity;
-    newRouteB->full = routeB->full;
-    std::cout << "LLamado 1" << '\n';
-    this->ChangeRTrip(solution, a, b, la, lb, routeA, routeB, punish);
-    std::cout << "LLamado 2" << '\n';
-    this->ChangeRTrip(solution, b, a, lb, la, routeB, routeA, punish);
-    delete newRouteA;
-    delete newRouteB;
+    Route * newRouteA, * newRouteB;
+    //std::cout << "Check "<< ExCheck(solution, a, b, la, lb, routeA, routeB, punish)[0] << '\n';
+    if(ExCheck(solution, a, b, la, lb, routeA, routeB, punish)[0] != 1){
+        return;
+    }
+
+    solution->recollected[routeA->getTypeIndex()] -=routeA->truck->getTotalCapacity()- routeA->remainingCapacity;
+    solution->recollected[routeB->getTypeIndex()] -=routeB->truck->getTotalCapacity()- routeB->remainingCapacity;
+
+
+    newRouteA = this->ChangeRTrip(solution, a, b, la, lb, routeA, routeB, punish);
+    newRouteB = this->ChangeRTrip(solution, b, a, lb, la, routeB, routeA, punish);
+
+
+    solution->recollected[newRouteA->getTypeIndex()] +=newRouteA->truck->getTotalCapacity()- newRouteA->remainingCapacity;
+    solution->recollected[newRouteB->getTypeIndex()] +=newRouteB->truck->getTotalCapacity()- newRouteB->remainingCapacity;
+
+    solution->replaceInSolution(newRouteA);
+    solution->replaceInSolution(newRouteB);
+
     return;
 }
 
-void Movement::ChangeRTrip(Solution *solution, int a, int b, int la, int lb, Route * routeA, Route * routeB, double punish){
+Route * Movement::ChangeRTrip(Solution *solution, int a, int b, int la, int lb, Route * routeA, Route * routeB, double punish){
     bool debug = 0;
     int i = 0;
     auto newRoute = new Route(routeA->getId(), routeA->truck, 0);
-    auto newRouteB = new Route(routeB->getId(), routeB->truck, 0);
-    newRoute->remainingCapacity = routeA->remainingCapacity;
+    newRoute->remainingCapacity = routeA->truck->getTotalCapacity();
     newRoute->full = routeA->full;
     for(Trip *t: routeA->trips){ //Recorremos los trips que deben cambiar
 
@@ -302,6 +313,7 @@ void Movement::ChangeRTrip(Solution *solution, int a, int b, int la, int lb, Rou
             auto trip = new Trip(t->initialNode, t->finalNode, solution->problemInstance->getDistance(t->initialNode, t->finalNode), t->finalNode->getType());
             trip->routeId = routeA->getId();
             newRoute->distance += trip->distance;
+            newRoute->remainingCapacity -= t->finalNode->getProduction();
 
             if (debug) t->printAll();
             if (debug) trip->printAll();
@@ -319,6 +331,7 @@ void Movement::ChangeRTrip(Solution *solution, int a, int b, int la, int lb, Rou
             auto trip = new Trip(t->initialNode, routeB->trips[b]->finalNode, solution->problemInstance->getDistance(routeA->trips[a]->initialNode,routeB->trips[b]->finalNode), routeB->trips[b]->finalNode->getType());
             trip->routeId = routeA->getId();
             newRoute->distance += trip->distance;
+            newRoute->remainingCapacity -= routeB->trips[b]->finalNode->getProduction();
 
             if (debug) t->printAll();
             if (debug) trip->printAll();
@@ -335,6 +348,7 @@ void Movement::ChangeRTrip(Solution *solution, int a, int b, int la, int lb, Rou
                     auto trip = new Trip(routeB->trips[j]->initialNode, routeB->trips[j]->finalNode, routeB->trips[j]->distance, routeB->trips[j]->quality);
                     trip->routeId = routeA->getId();
                     newRoute->distance += trip->distance;
+                    newRoute->remainingCapacity -= routeB->trips[j]->finalNode->getProduction();
 
                     if (debug) t->printAll();
                     if (debug) trip->printAll();
@@ -351,6 +365,8 @@ void Movement::ChangeRTrip(Solution *solution, int a, int b, int la, int lb, Rou
             auto trip = new Trip(routeB->trips[b+lb-1]->finalNode, t->finalNode, solution->problemInstance->getDistance(routeB->trips[b+lb-1]->finalNode, t->finalNode), t->finalNode->getType());
             trip->routeId = routeA->getId();
             newRoute->distance += trip->distance;
+            newRoute->remainingCapacity -= t->finalNode->getProduction();
+
             if (debug) t->printAll();
             if (debug) trip->printAll();
             if (debug) getchar();
@@ -366,6 +382,7 @@ void Movement::ChangeRTrip(Solution *solution, int a, int b, int la, int lb, Rou
             auto trip = new Trip(t->initialNode, t->finalNode, solution->problemInstance->getDistance(t->initialNode, t->finalNode), t->finalNode->getType());
             trip->routeId = routeA->getId();
             newRoute->distance += trip->distance;
+            newRoute->remainingCapacity -= t->finalNode->getProduction();
 
             if (debug) t->printAll();
             if (debug) trip->printAll();
@@ -379,7 +396,106 @@ void Movement::ChangeRTrip(Solution *solution, int a, int b, int la, int lb, Rou
 
         i++;
     }
-    newRoute->printAll();
-    delete newRoute;
-    return;
+    if (debug) routeA->printAll();
+    if (debug) newRoute->printAll();
+    return newRoute;
+}
+
+void Movement::ExNeiborhood(Solution *solution, Route * routeA, Route * routeB, double punish){
+    //Para saber que hacer
+
+    int size_rutaA = routeA->trips.size(), size_rutaB = routeB->trips.size();
+
+    if (routeA->trips.size() == 0 ||routeB->trips.size() == 0){
+        return;
+    }
+    for (size_t la = 3; la > 0; la--) {
+        /* code */
+        //For de la ruta A, y recorro todos los largos posibles
+        for (size_t lb = 3; lb > 0; lb--) {
+            //For de la ruta B, y recorro todos los largos posibles
+            //random a y random b
+            int startA=solution->random_int_number(0,size_rutaA-1);
+            int triesA=0;
+            while(triesA < size_rutaA){
+                int indexA=(startA+triesA)%size_rutaA;
+                if (indexA < size_rutaA){
+                    int startB=solution->random_int_number(0,size_rutaB-1);
+                    int triesB=0;
+                    while(triesB < size_rutaB){
+                        int indexB=(startB+triesB)%size_rutaB;
+                        if (indexB < size_rutaB){
+                            //if mejora (lo hago, los cambio en la solucion)
+                            if(this->ExCheck(solution, indexA, indexB, la, lb, routeA, routeB, punish)[1] > 0){
+                                this->ChangeTrip(solution, indexA, indexB, la, lb, routeA, routeB, punish);
+                                return;
+                            }
+                            // y return
+                            //cambios
+                        }
+                    triesB++;
+                    }
+                }
+            triesA++;
+            }
+        }
+    }
+}
+
+vector<Node *> Movement::getCandidates(Solution * solution, int a){
+    vector<Node *> candidates;
+    int selected;
+    for (Node *n: solution->unvisitedNodes){
+        n->printAll();
+    }
+    if (a > solution->unvisitedNodes.size()){
+        a = solution->unvisitedNodes.size();
+    }
+    for (size_t i = 0; i < a; i++) {
+        selected = rand() % solution->unvisitedNodes.size();
+        candidates.push_back(solution->unvisitedNodes[selected]);
+    }
+    for (Node *n: solution->unvisitedNodes){
+        n->printAll();
+    }
+    std::cout << "Candidatos" << '\n';
+    for (Node *n: candidates){
+        n->printAll();
+    }
+    return candidates;
+}
+
+void Movement::RemoveFromRoute(Solution * solution, int a){
+    int selected;
+    selected = rand() % (solution->routes[a]->trips.size()-1);
+    std::cout << "Selected: "<< selected << '\n';
+    solution->removeTrip(selected, solution->routes[a]);
+}
+
+void Movement::AddCandidates(Solution * solution){
+    vector<Node *> candidates = this->getCandidates(solution, solution->random_int_number(0,solution->unvisitedNodes.size()-1));
+    int routesize = solution->routes.size();
+    int start1=solution->random_int_number(0,routesize-1);
+    int tries1=0;
+    while(tries1 < routesize){
+        int index1=(start1+tries1)%routesize;
+        std::cout << "index: "<< index1 << '\n';
+        auto i = std::begin(candidates);
+        while (i != std::end(candidates)) {
+            if (solution->routes[index1]->remainingCapacity > (*i)->getProduction()){
+                solution->insertTrip(solution->routes[index1],0,(*i));
+                std::cout << "agregado a ruta: "<< index1+1<< " "<< (*i)->getId() << '\n';
+                i = candidates.erase(i);
+            }
+            else
+                i++;
+        }
+        // for (Node *n: candidates){
+        //     if (solution->routes[index1]->remainingCapacity > n->getProduction()){
+        //         solution->insertTrip(solution->route[index1],0,n);
+        //     }
+        // }
+        tries1++;
+    }
+
 }

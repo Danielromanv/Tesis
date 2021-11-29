@@ -45,7 +45,6 @@ void Construction::feasibleSolution(Solution *solution, float slack){
             if (opts.size() > 0){
                 if (this->currentRoute->getTypeIndex() != i){
                     this->currentRoute->type = i+1;
-                    std::cout << "ruta y tipo"<<  this->currentRoute->id << this->currentRoute->type << '\n';
                 }
                 sort(opts.begin(), opts.end(), sortByDistance);
                 // std::cout << "opciones" << '\n';

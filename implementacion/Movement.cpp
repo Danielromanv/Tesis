@@ -409,10 +409,10 @@ void Movement::ExNeiborhood(Solution *solution, Route * routeA, Route * routeB, 
     if (routeA->trips.size() == 0 ||routeB->trips.size() == 0){
         return;
     }
-    for (size_t la = 3; la > 0; la--) {
+    for (size_t la = 1; la <= 3; la++) {
         /* code */
         //For de la ruta A, y recorro todos los largos posibles
-        for (size_t lb = 3; lb > 0; lb--) {
+        for (size_t lb = 1; lb <= 3; lb++) {
             //For de la ruta B, y recorro todos los largos posibles
             //random a y random b
             int startA=solution->random_int_number(0,size_rutaA-1);
@@ -475,7 +475,7 @@ void Movement::RemoveFromRoute(Solution * solution, int a){
 }
 
 void Movement::AddCandidates(Solution * solution){
-    vector<Node *> candidates = this->getCandidates(solution, solution->random_int_number(0,solution->unvisitedNodes.size()-1));
+    vector<Node *> candidates = this->getCandidates(solution, solution->random_int_number(1,3));
     int routesize = solution->routes.size();
     int start1, tries1;
     for (size_t i = 0; i < candidates.size(); i++) {

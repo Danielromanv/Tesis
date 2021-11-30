@@ -53,6 +53,7 @@ int main(int argc, char *argv[]) {
 
         if(n == 0){
             Msolucion->resetSolution(*solucion);
+            std::cout << "Primera SOl"<<  Msolucion->PunishEvaluate(castigo) << '\n';
         }
 
 
@@ -88,6 +89,10 @@ int main(int argc, char *argv[]) {
                     }
                 }
             }while(solucion->PunishEvaluate(castigo) > prev);
+            if (solucion->PunishEvaluate(castigo) > Msolucion->PunishEvaluate(castigo)){
+                Msolucion->resetSolution(*solucion);
+                std::cout << Msolucion->PunishEvaluate(castigo) << '\n';
+            }
             move->AddCandidates(solucion);
             m++;
         }
@@ -96,6 +101,7 @@ int main(int argc, char *argv[]) {
 
         if (solucion->PunishEvaluate(castigo) > Msolucion->PunishEvaluate(castigo)){
             Msolucion->resetSolution(*solucion);
+            std::cout << Msolucion->PunishEvaluate(castigo) << '\n';
         }
 
         solucion->resetSolution(*rsolucion);

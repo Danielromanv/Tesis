@@ -13,7 +13,8 @@ int main(int argc, char *argv[]) {
     int instance(atoi(argv[1]));
     int seed(atoi(argv[2]));
     int runs(atoi(argv[3]));
-    int n =0, c = 0;
+    int steps(atoi(argv[4]));
+    int n =0;
     float slack = 0.0;
     float castigo = 1000;
     srand(seed);
@@ -67,15 +68,8 @@ int main(int argc, char *argv[]) {
 
         //While haciendo exchanges entre rutas con parametro de steps
         int m = 0;
-        int steps = 10;
+        double prev;
         while(m < steps){
-            for (size_t i = 0; i < solucion->routes.size()-1; i++) {
-                //Elegir la Ruta A
-                for (size_t j = i+1; j < solucion->routes.size(); j++) {
-                    //Elegir la ruta B
-                    move->ExNeiborhood(solucion, solucion->routes[i], solucion->routes[j],castigo);
-                }
-            }
             for (size_t i = 0; i < solucion->routes.size(); i++) {
                 do {
                     ra = solucion->routes[i]->distance;
@@ -84,12 +78,20 @@ int main(int argc, char *argv[]) {
                     rb = solucion->routes[i]->distance;
                 }while(rb < ra);
             }
-            // if (solution->random_number(0,1) < 0.1){
-                // Numero aleatorio para decidir cuantas vamos a sacar y cuantas agregar
-                //de una ruta aleatorias
-            // }
+            do{
+                prev = solucion->PunishEvaluate(castigo);
+                for (size_t i = 0; i < solucion->routes.size()-1; i++) {
+                    //Elegir la Ruta A
+                    for (size_t j = i+1; j < solucion->routes.size(); j++) {
+                        //Elegir la ruta B
+                        move->ExNeiborhood(solucion, solucion->routes[i], solucion->routes[j],castigo);
+                    }
+                }
+            }while(solucion->PunishEvaluate(castigo) > prev);
+            move->AddCandidates(solucion);
             m++;
         }
+
 
 
         if (solucion->PunishEvaluate(castigo) > Msolucion->PunishEvaluate(castigo)){
@@ -115,9 +117,6 @@ int main(int argc, char *argv[]) {
 
     // move->getCandidates(Msolucion,2);
     // move->RemoveFromRoute(Msolucion,0);
-    Msolucion->printAll();
-    move->AddCandidates(Msolucion);
-    Msolucion->printAll();
     //Msolucion->printAll();
     delete problemInstance;
     delete move;

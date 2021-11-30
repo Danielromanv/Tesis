@@ -3,6 +3,7 @@
 #include <vector>
 #include <random>
 #include <stdio.h>
+#include <algorithm>
 #include <cstring>
 #include "Trip.h"
 #include "ProblemInstance.h"

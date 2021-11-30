@@ -444,58 +444,50 @@ void Movement::ExNeiborhood(Solution *solution, Route * routeA, Route * routeB, 
 
 vector<Node *> Movement::getCandidates(Solution * solution, int a){
     vector<Node *> candidates;
-    int selected;
-    for (Node *n: solution->unvisitedNodes){
-        n->printAll();
-    }
+    int selected,i=0;
+    // for (Node *n: solution->unvisitedNodes){
+    //     n->printAll();
+    // }
     if (a > solution->unvisitedNodes.size()){
         a = solution->unvisitedNodes.size();
     }
-    for (size_t i = 0; i < a; i++) {
+    while (i < a) {
         selected = rand() % solution->unvisitedNodes.size();
-        candidates.push_back(solution->unvisitedNodes[selected]);
+        if (std::find(candidates.begin(),candidates.end(),solution->unvisitedNodes[selected]) == candidates.end()){
+            candidates.push_back(solution->unvisitedNodes[selected]);
+            i++;
+        }
     }
-    for (Node *n: solution->unvisitedNodes){
-        n->printAll();
-    }
-    std::cout << "Candidatos" << '\n';
-    for (Node *n: candidates){
-        n->printAll();
-    }
+    // for (Node *n: solution->unvisitedNodes){
+    //     n->printAll();
+    // }
+    // std::cout << "Candidatos" << '\n';
+    // for (Node *n: candidates){
+    //     n->printAll();
+    // }
     return candidates;
 }
 
 void Movement::RemoveFromRoute(Solution * solution, int a){
     int selected;
     selected = rand() % (solution->routes[a]->trips.size()-1);
-    std::cout << "Selected: "<< selected << '\n';
     solution->removeTrip(selected, solution->routes[a]);
 }
 
 void Movement::AddCandidates(Solution * solution){
     vector<Node *> candidates = this->getCandidates(solution, solution->random_int_number(0,solution->unvisitedNodes.size()-1));
     int routesize = solution->routes.size();
-    int start1=solution->random_int_number(0,routesize-1);
-    int tries1=0;
-    while(tries1 < routesize){
-        int index1=(start1+tries1)%routesize;
-        std::cout << "index: "<< index1 << '\n';
-        auto i = std::begin(candidates);
-        while (i != std::end(candidates)) {
-            if (solution->routes[index1]->remainingCapacity > (*i)->getProduction()){
-                solution->insertTrip(solution->routes[index1],0,(*i));
-                std::cout << "agregado a ruta: "<< index1+1<< " "<< (*i)->getId() << '\n';
-                i = candidates.erase(i);
+    int start1, tries1;
+    for (size_t i = 0; i < candidates.size(); i++) {
+        start1 = solution->random_int_number(0,routesize-1);
+        tries1=0;
+        while(tries1 < routesize){
+            int index1=(start1+tries1)%routesize;
+            if (solution->routes[index1]->remainingCapacity > candidates[i]->getProduction()){
+                solution->insertTrip(solution->routes[index1],0,candidates[i]);
+                break;
             }
-            else
-                i++;
+            tries1++;
         }
-        // for (Node *n: candidates){
-        //     if (solution->routes[index1]->remainingCapacity > n->getProduction()){
-        //         solution->insertTrip(solution->route[index1],0,n);
-        //     }
-        // }
-        tries1++;
     }
-
 }

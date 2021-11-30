@@ -3,7 +3,7 @@
 dir="Instances"
 
 it_int=100000
-
+steps=100
 
 ARGS="${it_int} ${steps}"
 

@@ -1,8 +1,0 @@
--como vamos a generar soluciones iniciales
--generar solucion inicial completa, para varias rutas
--castigar la falta de demanda
--priorizar tipo A
--2 opt vs 3 opt
--node deletion aleatorio, borrar rutas completas
-- agregar nodos con algun criterio, tabu
-- holgura para infactibilidades

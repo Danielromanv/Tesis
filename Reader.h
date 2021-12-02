@@ -14,6 +14,7 @@ class Reader
 private:
     string filePath;
     ifstream input;
+    string plant;
 
 public:
     explicit Reader(string option);

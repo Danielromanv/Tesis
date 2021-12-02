@@ -602,7 +602,7 @@ vector<double> Solution::PercentageLeft(){
     return r;
 }
 
-double Solution::PunishEvaluate(double punish){
+vector<double> Solution::PunishEvaluate(double punish){
     double totalDistance(0);
     vector<double> v = this->PercentageLeft();
     for (Route *r: this->routes) {
@@ -620,7 +620,13 @@ double Solution::PunishEvaluate(double punish){
     // std::cout << v[0] << '\n';
     // std::cout << (v[0]*this->literCost[0]*4) << '\n';
     //std::cout << "obj castigado: "<< milk - (totalDistance * this->kilometerCost) - punish*((v[2]*this->literCost[2]*2) + (v[1]*this->literCost[1]*3) + (v[0]*this->literCost[0]*4)) << '\n';
-    return milk - (totalDistance * this->kilometerCost) - punish*((v[2]*this->literCost[2]*2) + (v[1]*this->literCost[1]*3) + (v[0]*this->literCost[0]*4));
+    vector<double> ev;
+    ev.push_back(milk - (totalDistance * this->kilometerCost) - punish*((v[2]*this->literCost[2]*2) + (v[1]*this->literCost[1]*3) + (v[0]*this->literCost[0]*4)));
+    ev.push_back(milk);
+    ev.push_back(totalDistance * this->kilometerCost);
+    ev.push_back(punish*((v[2]*this->literCost[2]*2) + (v[1]*this->literCost[1]*3) + (v[0]*this->literCost[0]*4)));
+    //return milk - (totalDistance * this->kilometerCost) - punish*((v[2]*this->literCost[2]*2) + (v[1]*this->literCost[1]*3) + (v[0]*this->literCost[0]*4));
+    return ev;
 }
 
 int Solution::getDistance(){

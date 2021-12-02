@@ -68,7 +68,7 @@ public:
     void printSolution();
     int getDistance();
     double evaluate();
-    double PunishEvaluate(double punish);
+    vector<double> PunishEvaluate(double punish);
 
     bool isFeasible();
     bool DetectWrong(void);

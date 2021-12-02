@@ -4,8 +4,9 @@ dir="Instances"
 
 it_int=100000
 steps=100
+castigo=1000
 
-ARGS="${it_int} ${steps}"
+ARGS="${it_int} ${steps} ${castigo}"
 
 instanceList="1 2 3 4 5 6"
 seedList="129 137 279 672 195 666 429 762 821 483 999 729 318 349 287 241 476 555 581 573"
@@ -19,7 +20,7 @@ for instance in ${instanceList}; do
    rm -rf ${sumarizedOut}
    best=-1000000.0
    for seed in ${seedList}; do
-       detailedOut=out_${instance}_${seed}_${it_int}.out
+       detailedOut=out_${instance}_${seed}_${it_int}_${steps}_${castigo}.out
        rm -rf ${detailedOut}
        echo "./MCPB ${instance} ${seed} ${ARGS} > ${detailedOut}"
        ./MCPB ${instance} ${seed} ${ARGS} > ${detailedOut}

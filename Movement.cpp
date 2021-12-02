@@ -221,7 +221,7 @@ double * Movement::ExCheck(Solution *solution, int a, int b, int la, int lb, Rou
 
     if ((routeA->remainingCapacity + Sa)>=Sb && (routeB->remainingCapacity + Sb)>=Sa){r[0] = 1;}
     else{r[0] = -1;}
-    double ev = solution->PunishEvaluate(punish), ev2 = this->ExEvaluate(solution, punish, routeA, routeB,Sa,Sb,Da,Db,Ta,Tb);
+    double ev = solution->PunishEvaluate(punish)[0], ev2 = this->ExEvaluate(solution, punish, routeA, routeB,Sa,Sb,Da,Db,Ta,Tb);
     if (ev2-ev > 0 && r[0] == 1){
     // std::cout << "Ev original: "<< ev << '\n';
     // std::cout << "Ev cambio: "<< ev2 << '\n';
@@ -458,13 +458,6 @@ vector<Node *> Movement::getCandidates(Solution * solution, int a){
             i++;
         }
     }
-    // for (Node *n: solution->unvisitedNodes){
-    //     n->printAll();
-    // }
-    // std::cout << "Candidatos" << '\n';
-    // for (Node *n: candidates){
-    //     n->printAll();
-    // }
     return candidates;
 }
 

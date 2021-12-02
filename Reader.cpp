@@ -59,6 +59,7 @@ ProblemInstance *Reader::createInstance() {
     string node;
     int matrix_size(1); //Considerando la planta
     input >> node;
+    this->plant = node;
     while (true) {
         input >> node;
         matrix_size++;
@@ -123,7 +124,7 @@ void Reader::readDistances(ProblemInstance *problemInstance) {
         }
         while (count <= problemInstance->getNumberOfNodes()) {
             input >> distance;
-            if (id == "80") {
+            if (id == this->plant) {
                 id = "0";
             }
             if (distance == ".") {

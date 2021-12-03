@@ -53,7 +53,7 @@ int main(int argc, char *argv[]) {
 
         if(n == 0){
             Msolucion->resetSolution(*solucion);
-            std::cout << Msolucion->PunishEvaluate(castigo)[0] << '\n';
+            std::cout << Msolucion->PunishEvaluate(castigo)[0] << std::endl;
         }
 
 
@@ -68,7 +68,7 @@ int main(int argc, char *argv[]) {
         //va devolver la diferencia de distancia
 
         //While haciendo exchanges entre rutas con parametro de steps
-        int m = 0;
+        int m = 0, stuck = 0, pert = 1;
         double prev;
         while(m < steps){
             for (size_t i = 0; i < solucion->routes.size(); i++) {
@@ -91,9 +91,18 @@ int main(int argc, char *argv[]) {
             }while(solucion->PunishEvaluate(castigo)[0] > prev);
             if (solucion->PunishEvaluate(castigo)[0] > Msolucion->PunishEvaluate(castigo)[0]){
                 Msolucion->resetSolution(*solucion);
-                std::cout << Msolucion->PunishEvaluate(castigo)[0] << '\n';
+                std::cout << Msolucion->PunishEvaluate(castigo)[0] <<" "<<  Msolucion->PunishEvaluate(castigo)[1]<< " "<<  Msolucion->PunishEvaluate(castigo)[2]<< " "<<  Msolucion->PunishEvaluate(castigo)[3] << " "<< problemInstance->qualities[0]-Msolucion->recollected[0]<< " "<< problemInstance->qualities[1]-Msolucion->recollected[1]<< " "<< problemInstance->qualities[2]-Msolucion->recollected[2] << std::endl;
+                stuck = 0;
             }
-            move->AddCandidates(solucion);
+            stuck++;
+            if (stuck > 0.1*steps) {
+                pert++;
+                stuck = 0;
+                if (pert>5){
+                    pert = 1;
+                }
+            }
+            move->AddCandidates(solucion,pert);
             m++;
         }
 
@@ -101,7 +110,7 @@ int main(int argc, char *argv[]) {
 
         if (solucion->PunishEvaluate(castigo)[0] > Msolucion->PunishEvaluate(castigo)[0]){
             Msolucion->resetSolution(*solucion);
-            std::cout << Msolucion->PunishEvaluate(castigo)[0] << '\n';
+            std::cout << Msolucion->PunishEvaluate(castigo)[0] << std::endl;
         }
 
         solucion->resetSolution(*rsolucion);
@@ -113,7 +122,7 @@ int main(int argc, char *argv[]) {
         slack = (float)n/(float)runs;
     }
     Msolucion->printAll();
-    std::cout << Msolucion->PunishEvaluate(castigo)[0]<< " "<< (double)(clock() - tStart)/CLOCKS_PER_SEC<<" "<<  Msolucion->PunishEvaluate(castigo)[1]<< " "<<  Msolucion->PunishEvaluate(castigo)[2]<< " "<<  Msolucion->PunishEvaluate(castigo)[3] << " "<< problemInstance->qualities[0]-Msolucion->recollected[0]<< " "<< problemInstance->qualities[1]-Msolucion->recollected[1]<< " "<< problemInstance->qualities[2]-Msolucion->recollected[2] << '\n';
+    std::cout << Msolucion->PunishEvaluate(castigo)[0]<< " "<< (double)(clock() - tStart)/CLOCKS_PER_SEC<<" "<<  Msolucion->PunishEvaluate(castigo)[1]<< " "<<  Msolucion->PunishEvaluate(castigo)[2]<< " "<<  Msolucion->PunishEvaluate(castigo)[3] << " "<< problemInstance->qualities[0]-Msolucion->recollected[0]<< " "<< problemInstance->qualities[1]-Msolucion->recollected[1]<< " "<< problemInstance->qualities[2]-Msolucion->recollected[2] << std::endl;
 
     delete problemInstance;
     delete move;

@@ -462,21 +462,26 @@ vector<Node *> Movement::getCandidates(Solution * solution, int a){
 }
 
 void Movement::RemoveFromRoute(Solution * solution, int a){
-    int selected;
-    selected = rand() % (solution->routes[a]->trips.size()-1);
+    int selected = rand() % (solution->routes[a]->trips.size()-1);
     solution->removeTrip(selected, solution->routes[a]);
 }
 
-void Movement::AddCandidates(Solution * solution){
-    vector<Node *> candidates = this->getCandidates(solution, solution->random_int_number(1,3));
+void Movement::AddCandidates(Solution * solution, int max){
+    vector<Node *> candidates = this->getCandidates(solution, max);
+    // vector<Node *> candidates = this->getCandidates(solution, solution->random_int_number(1,max));
     int routesize = solution->routes.size();
+    if(rand() < 0.0){
+        for (size_t i = 0; i < candidates.size()-1; i++) {
+            this->RemoveFromRoute(solution, rand() % (solution->routes.size()-1));
+        }
+    }
     int start1, tries1;
     for (size_t i = 0; i < candidates.size(); i++) {
         start1 = solution->random_int_number(0,routesize-1);
         tries1=0;
         while(tries1 < routesize){
             int index1=(start1+tries1)%routesize;
-            if (solution->routes[index1]->remainingCapacity > candidates[i]->getProduction()){
+            if ((!solution->routes.size())||(solution->routes[index1]->remainingCapacity > candidates[i]->getProduction() && candidates[i]->getTypeIndex() == solution->routes[index1]->getTypeIndex())){
                 solution->insertTrip(solution->routes[index1],0,candidates[i]);
                 break;
             }

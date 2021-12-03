@@ -34,6 +34,6 @@ public:
     void ExNeiborhood(Solution *solution, Route * routeA, Route * routeB, double punish);
     vector<Node *> getCandidates(Solution * solution, int a);
     void RemoveFromRoute(Solution * solution, int a);
-    void AddCandidates(Solution * solution);
+    void AddCandidates(Solution * solution, int max);
 
 };

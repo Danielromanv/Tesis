@@ -470,7 +470,7 @@ void Movement::AddCandidates(Solution * solution, int max){
     vector<Node *> candidates = this->getCandidates(solution, max);
     // vector<Node *> candidates = this->getCandidates(solution, solution->random_int_number(1,max));
     int routesize = solution->routes.size();
-    if(rand() < 0.0){
+    if(rand() < 0.15){
         for (size_t i = 0; i < candidates.size()-1; i++) {
             this->RemoveFromRoute(solution, rand() % (solution->routes.size()-1));
         }

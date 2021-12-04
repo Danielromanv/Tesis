@@ -116,7 +116,7 @@ int main(int argc, char *argv[]) {
         solucion->resetSolution(*rsolucion);
         //comparar si es mejor que la mejorsolucion y reemplazar y reset solution de la que varia
 
-
+        std::cout << "n: "<< n << '\n';
         delete construct;
         n++;
         slack = (float)n/(float)runs;

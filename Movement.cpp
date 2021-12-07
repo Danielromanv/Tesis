@@ -208,28 +208,18 @@ double * Movement::ExCheck(Solution *solution, int a, int b, int la, int lb, Rou
             j++;
         }
     }
-    // std::cout << "Sa: "<< Sa << '\n';
-    // std::cout << "Sb: "<< Sb << '\n';
-    // std::cout << "Da: "<< Da << '\n';
-    // std::cout << "Db: "<< Db << '\n';
-    // std::cout << "Ta: "<< Ta << '\n';
-    // std::cout << "Tb: "<< Tb << '\n';
+
     Da += solution->problemInstance->getDistance(routeB->trips[b+lb-1]->finalNode,routeA->trips[a+la]->finalNode)+solution->problemInstance->getDistance(routeA->trips[a]->initialNode,routeB->trips[b]->finalNode);
     Db += solution->problemInstance->getDistance(routeA->trips[a+la-1]->finalNode,routeB->trips[b+lb]->finalNode)+solution->problemInstance->getDistance(routeB->trips[b]->initialNode,routeA->trips[a]->finalNode);
-    // std::cout << "Da: "<< Da << '\n';
-    // std::cout << "Db: "<< Db << '\n';
 
     if ((routeA->remainingCapacity + Sa)>=Sb && (routeB->remainingCapacity + Sb)>=Sa){r[0] = 1;}
     else{r[0] = -1;}
     double ev = solution->PunishEvaluate(punish)[0], ev2 = this->ExEvaluate(solution, punish, routeA, routeB,Sa,Sb,Da,Db,Ta,Tb);
-    if (ev2-ev > 0 && r[0] == 1){
-    // std::cout << "Ev original: "<< ev << '\n';
-    // std::cout << "Ev cambio: "<< ev2 << '\n';
-    // std::cout << "diferencia: "<< ev2-ev << '\n';
-    // std::cout << "factible: "<< r[0] << '\n';
-    // std::cout << "Cambios en Distancia B: Se quita "<< routeB->distance << " se suma "<< Db << " Se quita de leche "<< Sb << " Y se agrega " << Sa << '\n';
-    // std::cout << "Cambios en Distancia A: Se quita "<< routeA->distance << " se suma "<< Da << " Se quita de leche "<< Sa << " Y se agrega " << Sb << '\n';
-}
+//     if (ev2-ev > 0 && r[0] == 1){
+//     std::cout << "Cambios en Distancia B: Se quita "<< routeB->distance << " se suma "<< Db << " Se quita de leche "<< Sb << " Y se agrega " << Sa << '\n';
+//     std::cout << "Cambios en Distancia A: Se quita "<< routeA->distance << " se suma "<< Da << " Se quita de leche "<< Sa << " Y se agrega " << Sb << '\n';
+//     std::cout << "ev1: "<< ev << "ev2: "<< ev2 << '\n';
+// }
 
     r[1] = ev2-ev;
     return r;
@@ -239,12 +229,12 @@ double * Movement::ExCheck(Solution *solution, int a, int b, int la, int lb, Rou
 double Movement::ExEvaluate(Solution *solution,double punish, Route * routeA, Route * routeB, double Sa, double Sb, double Da, double Db, int Ta, int Tb){
     double totalDistance(0), recollected[solution->problemInstance->qualities.size()];
     memset (recollected, 0, sizeof(recollected));
-    // for (Route *r: solution->routes) { Me lo puedo Ahorrar
-    //     if ((r != routeA) && (r != routeB)){
-    //         recollected[r->getTypeIndex()] += r->truck->getTotalCapacity()- r->remainingCapacity;
-    //         totalDistance += r->distance;
-    //     }
-    // }
+    for (Route *r: solution->routes) {
+        if ((r->getId() != routeA->getId()) && (r->getId() != routeB->getId())){
+            recollected[r->getTypeIndex()] += r->truck->getTotalCapacity()- r->remainingCapacity;
+            totalDistance += r->distance;
+        }
+    }
     totalDistance += Da+Db;
     recollected[Ta] += routeA->truck->getTotalCapacity() - routeA->remainingCapacity - Sa + Sb;
     recollected[Tb] += routeB->truck->getTotalCapacity() - routeB->remainingCapacity - Sb + Sa;
@@ -265,12 +255,8 @@ double Movement::ExEvaluate(Solution *solution,double punish, Route * routeA, Ro
         //std::cout << "agregando: "<< (double)recollected[i] * solution->literCost[i] << '\n';
         milk += (double)recollected[i] * solution->literCost[i];
     }
-    //std::cout << "eval distance"<< totalDistance << '\n';
-    //std::cout << "milk: "<< v[0]<< " "<< v[1]<< v[2] << '\n';
-    // std::cout << v[0] << '\n';
-    // std::cout << (v[0]*solution->literCost[0]*4) << '\n';
-    //std::cout << "obj castigado: "<< milk - (totalDistance * solution->kilometerCost) - punish*((v[2]*solution->literCost[2]*2) + (v[1]*solution->literCost[1]*3) + (v[0]*solution->literCost[0]*4)) << '\n';
-    return milk - (totalDistance * solution->kilometerCost) - punish*((v[2]*solution->literCost[2]*2) + (v[1]*solution->literCost[1]*3) + (v[0]*solution->literCost[0]*4));
+
+    return milk - (totalDistance * solution->kilometerCost) - (punish*((v[2]*solution->literCost[2]*10) + (v[1]*solution->literCost[1]*100) + (v[0]*solution->literCost[0]*1000)));
 }
 
 void Movement::ChangeTrip(Solution *solution, int a, int b, int la, int lb, Route * routeA, Route * routeB, double punish){
@@ -402,10 +388,9 @@ Route * Movement::ChangeRTrip(Solution *solution, int a, int b, int la, int lb, 
 }
 
 void Movement::ExNeiborhood(Solution *solution, Route * routeA, Route * routeB, double punish){
-    //Para saber que hacer
-
+    bool debug = 0;
     int size_rutaA = routeA->trips.size(), size_rutaB = routeB->trips.size();
-
+    double *ev;
     if (routeA->trips.size() == 0 ||routeB->trips.size() == 0){
         return;
     }
@@ -426,8 +411,33 @@ void Movement::ExNeiborhood(Solution *solution, Route * routeA, Route * routeB, 
                         int indexB=(startB+triesB)%size_rutaB;
                         if (indexB < size_rutaB){
                             //if mejora (lo hago, los cambio en la solucion)
-                            if(this->ExCheck(solution, indexA, indexB, la, lb, routeA, routeB, punish)[1] > 0){
+                            ev = this->ExCheck(solution, indexA, indexB, la, lb, routeA, routeB, punish);
+                            if(ev[0] == 1 && ev[1] > 0){
+                                if (debug){
+                                    std::cout << "------ Exchange -------" << '\n';
+                                    for (int i = indexA; i < indexA+la; i++) {
+                                        routeA->trips[i]->printAll();
+                                    }
+                                    std::cout << "\n";
+                                    for (int i = indexB; i < indexB+lb; i++) {
+                                        routeB->trips[i]->printAll();
+                                    }
+                                    std::cout <<"excheck" <<ExCheck(solution, indexA, indexB, la, lb, routeA, routeB, punish)[1] << '\n';
+                                    routeA->printAll();
+                                    routeB->printAll();
+                                    std::cout << "index: "<< indexA<<" la:"<< la << '\n';
+                                    std::cout << "index: "<< indexB<<" lb:"<< lb << '\n';
+                                    std::cout << solution->PunishEvaluate(punish)[0] << '\n';
+
+                                }
+                                int ra = routeA->getId()-1;
+                                int rb = routeB->getId()-1;
                                 this->ChangeTrip(solution, indexA, indexB, la, lb, routeA, routeB, punish);
+                                if(debug){
+                                    solution->routes[ra]->printAll();
+                                    solution->routes[rb]->printAll();
+                                    std::cout << "real: "<<solution->PunishEvaluate(punish)[0] << '\n';
+                                }
                                 return;
                             }
                             // y return
@@ -462,14 +472,20 @@ vector<Node *> Movement::getCandidates(Solution * solution, int a){
 }
 
 void Movement::RemoveFromRoute(Solution * solution, int a){
+    bool debug = 1;
     int selected = rand() % (solution->routes[a]->trips.size()-1);
+    if (debug){
+        std::cout << "remove: "<< '\n';
+        solution->routes[a]->trips[selected]->printAll();
+    }
     solution->removeTrip(selected, solution->routes[a]);
 }
 
 void Movement::AddCandidates(Solution * solution, int max){
+    bool debug = 1;
     vector<Node *> candidates = this->getCandidates(solution, max);
     // vector<Node *> candidates = this->getCandidates(solution, solution->random_int_number(1,max));
-    int routesize = solution->routes.size();
+    int routesize = solution->routes.size(), r;
     if(rand() < 0.15){
         for (size_t i = 0; i < candidates.size()-1; i++) {
             this->RemoveFromRoute(solution, rand() % (solution->routes.size()-1));
@@ -482,6 +498,11 @@ void Movement::AddCandidates(Solution * solution, int max){
         while(tries1 < routesize){
             int index1=(start1+tries1)%routesize;
             if ((!solution->routes.size())||(solution->routes[index1]->remainingCapacity > candidates[i]->getProduction() && candidates[i]->getTypeIndex() == solution->routes[index1]->getTypeIndex())){
+                if(debug){
+                    std::cout << "add canidate: " << '\n';
+                    candidates[i]->printAll();
+                    std::cout << "to route id and type"<< solution->routes[index1]->getId() <<" "<< solution->routes[index1]->getTypeIndex() << '\n';
+                }
                 solution->insertTrip(solution->routes[index1],0,candidates[i]);
                 break;
             }

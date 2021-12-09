@@ -8,6 +8,7 @@
 #include "Node.h"
 #include "ProblemInstance.h"
 #include "Route.h"
+extern float MilkWeight[];
 
 using namespace std;
 

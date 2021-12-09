@@ -10,6 +10,7 @@
 #include "Route.h"
 #include "Solution.h"
 #include <cmath>
+extern float MilkWeight[];
 
 using namespace std;
 
@@ -35,5 +36,6 @@ public:
     vector<Node *> getCandidates(Solution * solution, int a);
     void RemoveFromRoute(Solution * solution, int a);
     void AddCandidates(Solution * solution, int max);
-
+    vector<double> checkRoute(Solution * solution, Route * route);
+    void purify(Solution * solution, Route * route);
 };

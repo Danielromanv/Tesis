@@ -6,7 +6,7 @@
 #include "Solution.h"
 #include "Construction.h"
 #include "Movement.h"
-
+float MilkWeight[] = {30,21,9};
 
 
 int main(int argc, char *argv[]) {
@@ -17,6 +17,7 @@ int main(int argc, char *argv[]) {
     int castigo(atoi(argv[5]));
     int n =0;
     float slack = 0.0;
+
     srand(seed);
 
     clock_t tStart = clock();
@@ -116,13 +117,16 @@ int main(int argc, char *argv[]) {
         solucion->resetSolution(*rsolucion);
         //comparar si es mejor que la mejorsolucion y reemplazar y reset solution de la que varia
 
-        std::cout << "n: "<< n << '\n';
         delete construct;
         n++;
         slack = (float)n/(float)runs;
     }
     Msolucion->printAll();
     std::cout << Msolucion->PunishEvaluate(castigo)[0]<< " "<< (double)(clock() - tStart)/CLOCKS_PER_SEC<<" "<<  Msolucion->PunishEvaluate(castigo)[1]<< " "<<  Msolucion->PunishEvaluate(castigo)[2]<< " "<<  Msolucion->PunishEvaluate(castigo)[3] << " "<< problemInstance->qualities[0]-Msolucion->recollected[0]<< " "<< problemInstance->qualities[1]-Msolucion->recollected[1]<< " "<< problemInstance->qualities[2]-Msolucion->recollected[2] << std::endl;
+    vector<double> p= move->checkRoute(Msolucion, Msolucion->routes[5]);
+    std::cout << p[0]<< " "<<p[1]<<" "<<p[2]<< " " <<p[3] << '\n';
+    move->purify(Msolucion, Msolucion->routes[5]);
+    Msolucion->routes[5]->printAll();
 
     delete problemInstance;
     delete move;

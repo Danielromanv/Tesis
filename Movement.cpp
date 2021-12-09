@@ -256,7 +256,7 @@ double Movement::ExEvaluate(Solution *solution,double punish, Route * routeA, Ro
         milk += (double)recollected[i] * solution->literCost[i];
     }
 
-    return milk - (totalDistance * solution->kilometerCost) - (punish*((v[2]*solution->literCost[2]*10) + (v[1]*solution->literCost[1]*100) + (v[0]*solution->literCost[0]*1000)));
+    return milk - (totalDistance * solution->kilometerCost) - (punish*((v[2]*solution->literCost[2]*MilkWeight[2]) + (v[1]*solution->literCost[1]*MilkWeight[1]) + (v[0]*solution->literCost[0]*MilkWeight[0])));
 }
 
 void Movement::ChangeTrip(Solution *solution, int a, int b, int la, int lb, Route * routeA, Route * routeB, double punish){
@@ -482,7 +482,7 @@ void Movement::RemoveFromRoute(Solution * solution, int a){
 }
 
 void Movement::AddCandidates(Solution * solution, int max){
-    bool debug = 1;
+    bool debug = 0;
     vector<Node *> candidates = this->getCandidates(solution, max);
     // vector<Node *> candidates = this->getCandidates(solution, solution->random_int_number(1,max));
     int routesize = solution->routes.size(), r;
@@ -507,6 +507,45 @@ void Movement::AddCandidates(Solution * solution, int max){
                 break;
             }
             tries1++;
+        }
+    }
+}
+
+vector<double> Movement::checkRoute(Solution * solution, Route * route){
+    int local[solution->problemInstance->qualities.size()], count = 0;
+    vector<double> proportion(solution->problemInstance->qualities.size()+1,0);
+    memset(local, 0, sizeof(local));
+    for(Trip *t: route->trips){
+        if (t->finalNode->getTypeIndex() >= 0){
+            local[t->finalNode->getTypeIndex()] += t->finalNode->getProduction();
+        }
+    }
+    for (size_t i = 1; i < proportion.size(); i++) {
+        proportion[i] += (double)local[i-1]/(route->truck->getTotalCapacity() - route->remainingCapacity);
+        if (proportion[i] > 0){
+            count++;
+        }
+    }
+    if (count > 0) proportion[0] = 1;
+    return proportion;
+}
+
+void Movement::purify(Solution * solution, Route * route){
+    vector<double> v = checkRoute(solution, route);
+    int j =0;
+    if (v[0]){
+        for (size_t i = 1; i < v.size(); i++) {
+            if(v[i] > 0){
+                do {
+                    if(route->trips[j]->finalNode->getType() > i){
+                        solution->removeTrip(j, route);
+                    }
+                    else{
+                        j++;
+                    }
+                }while(route->trips[j]->finalNode->getId() != 0);
+                return;
+            }
         }
     }
 }

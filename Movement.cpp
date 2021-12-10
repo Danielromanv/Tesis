@@ -227,8 +227,8 @@ double * Movement::ExCheck(Solution *solution, int a, int b, int la, int lb, Rou
 }
 
 double Movement::ExEvaluate(Solution *solution,double punish, Route * routeA, Route * routeB, double Sa, double Sb, double Da, double Db, int Ta, int Tb){
-    double totalDistance(0), recollected[solution->problemInstance->qualities.size()];
-    memset (recollected, 0, sizeof(recollected));
+    double totalDistance(0);
+    vector<int> recollected(solution->problemInstance->qualities.size(),0);
     for (Route *r: solution->routes) {
         if ((r->getId() != routeA->getId()) && (r->getId() != routeB->getId())){
             recollected[r->getTypeIndex()] += r->truck->getTotalCapacity()- r->remainingCapacity;
@@ -238,10 +238,11 @@ double Movement::ExEvaluate(Solution *solution,double punish, Route * routeA, Ro
     totalDistance += Da+Db;
     recollected[Ta] += routeA->truck->getTotalCapacity() - routeA->remainingCapacity - Sa + Sb;
     recollected[Tb] += routeB->truck->getTotalCapacity() - routeB->remainingCapacity - Sb + Sa;
+    vector<int> realrecollect = solution->newRecollected(recollected,0);
     vector<double> v;
     double a;
-    for (int i = 0; i < solution->recollected.size(); i++) {
-        a = solution->problemInstance->qualities[i] - recollected[i];
+    for (int i = 0; i < realrecollect.size(); i++) {
+        a = solution->problemInstance->qualities[i] - realrecollect[i];
         if (a >= 0 && solution->problemInstance->qualities[i]!=0){
             v.push_back((double)a/(double)solution->problemInstance->qualities[i]);
         }
@@ -251,9 +252,9 @@ double Movement::ExEvaluate(Solution *solution,double punish, Route * routeA, Ro
     }
     //std::cout << "distancia: "<< totalDistance << '\n';
     double milk(0);
-    for (int i=0; i < solution->recollected.size(); i++){
-        //std::cout << "agregando: "<< (double)recollected[i] * solution->literCost[i] << '\n';
-        milk += (double)recollected[i] * solution->literCost[i];
+    for (int i=0; i < realrecollect.size(); i++){
+        //std::cout << "agregando: "<< (double)realrecollect[i] * solution->literCost[i] << '\n';
+        milk += (double)realrecollect[i] * solution->literCost[i];
     }
 
     return milk - (totalDistance * solution->kilometerCost) - (punish*((v[2]*solution->literCost[2]*MilkWeight[2]) + (v[1]*solution->literCost[1]*MilkWeight[1]) + (v[0]*solution->literCost[0]*MilkWeight[0])));

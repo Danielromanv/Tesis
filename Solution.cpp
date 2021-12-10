@@ -610,16 +610,15 @@ vector<double> Solution::PercentageLeft(vector<int> collected){
     return r;
 }
 
-vector<int> Solution::newRecollected(int update){
-    bool t = 1;
+vector<int> Solution::newRecollected(vector<int> recollect,int update){
     vector<int> resto,TRec;
 
     for(int i=0; i < this->recollected.size(); i++){
-        TRec.push_back(this->recollected[i]);
-        resto.push_back(this->recollected[i]-this->problemInstance->qualities[i]);
+        TRec.push_back(recollect[i]);
+        resto.push_back(recollect[i]-this->problemInstance->qualities[i]);
     }
-    for(int i=this->recollected.size(); i >= 0; i--){
-        if(resto[i] < 0 && i == this->recollected.size()){
+    for(int i=recollect.size(); i >= 0; i--){
+        if(resto[i] < 0 && i == recollect.size()){
             if(resto[i-1] > 0){
                 if (resto[i-1] >= abs(resto[i])){
                     resto[i-1] += resto[i];
@@ -649,7 +648,7 @@ vector<int> Solution::newRecollected(int update){
                 }
             }
         }
-        if(i == this->recollected.size()-1 && resto[i] < 0){
+        if(i == recollect.size()-1 && resto[i] < 0){
             if(resto[i-1] > 0){
                 if(resto[i-1] >= abs(resto[i])){
                     resto[i-1] += resto[i];
@@ -677,7 +676,7 @@ vector<int> Solution::newRecollected(int update){
 
 vector<double> Solution::PunishEvaluate(double punish){
     double totalDistance(0);
-    vector<int> newRecollected = this->newRecollected();
+    vector<int> newRecollected = this->newRecollected(this->recollected);
     vector<double> v = this->PercentageLeft(newRecollected);
     for (Route *r: this->routes) {
         totalDistance += r->distance;

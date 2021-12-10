@@ -64,7 +64,7 @@ public:
     Truck *getNextTruck();
     int getUnsatisfiedType(int from);
     char getType(int i, bool reverse);
-    vector<int> newRecollected(int update = 1);
+    vector<int> newRecollected(vector<int> recollect,int update = 1);
 
     void printAll();
     void printSolution();

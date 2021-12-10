@@ -119,8 +119,8 @@ int main(int argc, char *argv[]) {
     }
     Msolucion->printAll();
     std::cout << Msolucion->PunishEvaluate(castigo)[0]<< " "<< (double)(clock() - tStart)/CLOCKS_PER_SEC<<" "<<  Msolucion->PunishEvaluate(castigo)[1]<< " "<<  Msolucion->PunishEvaluate(castigo)[2]<< " "<<  Msolucion->PunishEvaluate(castigo)[3] << " "<< problemInstance->qualities[0]-Msolucion->recollected[0]<< " "<< problemInstance->qualities[1]-Msolucion->recollected[1]<< " "<< problemInstance->qualities[2]-Msolucion->recollected[2] << std::endl;
-    vector<double> p= move->checkRoute(Msolucion, Msolucion->routes[5]);
-    std::cout << p[0]<< " "<<p[1]<<" "<<p[2]<< " " <<p[3] << '\n';
+    //vector<double> p= move->checkRoute(Msolucion, Msolucion->routes[5]);
+    //std::cout << p[0]<< " "<<p[1]<<" "<<p[2]<< " " <<p[3] << '\n';
     //Msolucion->newRecollected();
     // move->purify(Msolucion, Msolucion->routes[5]);
     // Msolucion->routes[5]->printAll();

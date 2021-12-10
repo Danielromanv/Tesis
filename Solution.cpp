@@ -617,7 +617,7 @@ vector<int> Solution::newRecollected(vector<int> recollect,int update){
         TRec.push_back(recollect[i]);
         resto.push_back(recollect[i]-this->problemInstance->qualities[i]);
     }
-    for(int i=recollect.size(); i >= 0; i--){
+    for(int i=recollect.size()-1; i >= 0; i--){
         if(resto[i] < 0 && i == recollect.size()){
             if(resto[i-1] > 0){
                 if (resto[i-1] >= abs(resto[i])){
@@ -648,7 +648,7 @@ vector<int> Solution::newRecollected(vector<int> recollect,int update){
                 }
             }
         }
-        if(i == recollect.size()-1 && resto[i] < 0){
+        else if(i == recollect.size()-2 && resto[i] < 0){
             if(resto[i-1] > 0){
                 if(resto[i-1] >= abs(resto[i])){
                     resto[i-1] += resto[i];

@@ -228,7 +228,7 @@ double * Movement::ExCheck(Solution *solution, int a, int b, int la, int lb, Rou
 
 double Movement::ExEvaluate(Solution *solution,double punish, Route * routeA, Route * routeB, double Sa, double Sb, double Da, double Db, int Ta, int Tb){
     double totalDistance(0);
-    vector<int> recollected(solution->problemInstance->qualities.size(),0);
+    vector<int> recollected(solution->problemInstance->qualities.size());
     for (Route *r: solution->routes) {
         if ((r->getId() != routeA->getId()) && (r->getId() != routeB->getId())){
             recollected[r->getTypeIndex()] += r->truck->getTotalCapacity()- r->remainingCapacity;

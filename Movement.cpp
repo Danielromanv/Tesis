@@ -278,7 +278,6 @@ void Movement::ChangeTrip(Solution *solution, int a, int b, int la, int lb, Rout
 
     solution->recollected[newRouteA->getTypeIndex()] +=newRouteA->truck->getTotalCapacity()- newRouteA->remainingCapacity;
     solution->recollected[newRouteB->getTypeIndex()] +=newRouteB->truck->getTotalCapacity()- newRouteB->remainingCapacity;
-
     solution->replaceInSolution(newRouteA);
     solution->replaceInSolution(newRouteB);
 
@@ -291,6 +290,7 @@ Route * Movement::ChangeRTrip(Solution *solution, int a, int b, int la, int lb, 
     auto newRoute = new Route(routeA->getId(), routeA->truck, 0);
     newRoute->remainingCapacity = routeA->truck->getTotalCapacity();
     newRoute->full = routeA->full;
+    newRoute->type = 0;
     for(Trip *t: routeA->trips){ //Recorremos los trips que deben cambiar
 
         if(i < a){
@@ -303,7 +303,7 @@ Route * Movement::ChangeRTrip(Solution *solution, int a, int b, int la, int lb, 
 
             if (debug) t->printAll();
             if (debug) trip->printAll();
-            if (debug) getchar();
+            //if (debug) getchar();
 
             if (t->finalNode->getType() > newRoute->getType()){
                 newRoute->type =t->finalNode->getType();
@@ -338,10 +338,10 @@ Route * Movement::ChangeRTrip(Solution *solution, int a, int b, int la, int lb, 
 
                     if (debug) t->printAll();
                     if (debug) trip->printAll();
-                    if (debug) getchar();
+                    //if (debug) getchar();
 
                     if (routeB->trips[j]->finalNode->getType() > newRoute->getType()){
-                        newRoute->type = routeB->trips[b]->finalNode->getType();
+                        newRoute->type = routeB->trips[j]->finalNode->getType();
                     }
                     newRoute->trips.push_back(trip);
                 }
@@ -355,7 +355,7 @@ Route * Movement::ChangeRTrip(Solution *solution, int a, int b, int la, int lb, 
 
             if (debug) t->printAll();
             if (debug) trip->printAll();
-            if (debug) getchar();
+            //if (debug) getchar();
 
             if (t->finalNode->getType() > newRoute->getType()){
                 newRoute->type = t->finalNode->getType();
@@ -372,7 +372,7 @@ Route * Movement::ChangeRTrip(Solution *solution, int a, int b, int la, int lb, 
 
             if (debug) t->printAll();
             if (debug) trip->printAll();
-            if (debug) getchar();
+            //if (debug) getchar();
 
             if (t->finalNode->getType() > newRoute->getType()){
                 newRoute->type = t->finalNode->getType();
@@ -472,7 +472,7 @@ vector<Node *> Movement::getCandidates(Solution * solution, int a){
 }
 
 void Movement::RemoveFromRoute(Solution * solution, int a){
-    bool debug = 1;
+    bool debug = 0;
     int selected = rand() % (solution->routes[a]->trips.size()-1);
     if (debug){
         std::cout << "remove: "<< '\n';
@@ -502,8 +502,10 @@ void Movement::AddCandidates(Solution * solution, int max){
                     std::cout << "add canidate: " << '\n';
                     candidates[i]->printAll();
                     std::cout << "to route id and type"<< solution->routes[index1]->getId() <<" "<< solution->routes[index1]->getTypeIndex() << '\n';
+                    solution->routes[index1]->printAll();
                 }
                 solution->insertTrip(solution->routes[index1],0,candidates[i]);
+                if(debug)solution->routes[index1]->printAll();
                 break;
             }
             tries1++;

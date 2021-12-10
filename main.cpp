@@ -48,9 +48,7 @@ int main(int argc, char *argv[]) {
 
     while (n < runs) {
         Construction *construct = new Construction(0, solucion);
-        construct -> feasibleSolution(solucion, slack);
-        solucion->isFeasible();
-
+        construct->feasibleSolution(solucion, slack);
 
         if(n == 0){
             Msolucion->resetSolution(*solucion);
@@ -107,11 +105,9 @@ int main(int argc, char *argv[]) {
             m++;
         }
 
-
-
         if (solucion->PunishEvaluate(castigo)[0] > Msolucion->PunishEvaluate(castigo)[0]){
             Msolucion->resetSolution(*solucion);
-            std::cout << Msolucion->PunishEvaluate(castigo)[0] << std::endl;
+            std::cout << Msolucion->PunishEvaluate(castigo)[0] <<" "<<  Msolucion->PunishEvaluate(castigo)[1]<< " "<<  Msolucion->PunishEvaluate(castigo)[2]<< " "<<  Msolucion->PunishEvaluate(castigo)[3] << " "<< problemInstance->qualities[0]-Msolucion->recollected[0]<< " "<< problemInstance->qualities[1]-Msolucion->recollected[1]<< " "<< problemInstance->qualities[2]-Msolucion->recollected[2] << std::endl;
         }
 
         solucion->resetSolution(*rsolucion);
@@ -125,9 +121,10 @@ int main(int argc, char *argv[]) {
     std::cout << Msolucion->PunishEvaluate(castigo)[0]<< " "<< (double)(clock() - tStart)/CLOCKS_PER_SEC<<" "<<  Msolucion->PunishEvaluate(castigo)[1]<< " "<<  Msolucion->PunishEvaluate(castigo)[2]<< " "<<  Msolucion->PunishEvaluate(castigo)[3] << " "<< problemInstance->qualities[0]-Msolucion->recollected[0]<< " "<< problemInstance->qualities[1]-Msolucion->recollected[1]<< " "<< problemInstance->qualities[2]-Msolucion->recollected[2] << std::endl;
     vector<double> p= move->checkRoute(Msolucion, Msolucion->routes[5]);
     std::cout << p[0]<< " "<<p[1]<<" "<<p[2]<< " " <<p[3] << '\n';
-    move->purify(Msolucion, Msolucion->routes[5]);
-    Msolucion->routes[5]->printAll();
-
+    //Msolucion->newRecollected();
+    // move->purify(Msolucion, Msolucion->routes[5]);
+    // Msolucion->routes[5]->printAll();
+    // std::cout << Msolucion->PunishEvaluate(castigo)[0]<< "\n";
     delete problemInstance;
     delete move;
     delete solucion;

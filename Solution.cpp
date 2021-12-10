@@ -17,6 +17,7 @@ Solution::Solution(ProblemInstance *problemInstance, unsigned int seed){
         this->recollected.push_back(0);
     }
 
+    //hacer con copy
     this->unsatisfiedDemand = problemInstance->qualities;
 
     for (Truck *truck: problemInstance->trucks){
@@ -79,6 +80,7 @@ Solution::~Solution() {
 Solution::Solution(const Solution &s2){
 
     recollected = s2.recollected;
+    //copy
     unsatisfiedDemand = s2.unsatisfiedDemand;
 
     for (Truck *truck: s2.unusedTrucks){
@@ -110,6 +112,7 @@ Solution::Solution(const Solution &s2){
 void Solution::resetSolution(const Solution &s2) {
 
     this->recollected = s2.recollected;
+    //copy
     this->unsatisfiedDemand = s2.unsatisfiedDemand;
 
     this->unusedTrucks.clear();
@@ -241,6 +244,7 @@ void Solution::insertTrip(Route *route, int index, Node *node) {
     this->removeNode(node);
     if (route->trips.size() > 0){
         this->recollected[route->getTypeIndex()] -= route->truck->getTotalCapacity()- route->remainingCapacity;
+        this->unsatisfiedDemand[route->getTypeIndex()] += route->truck->getTotalCapacity()- route->remainingCapacity;
 
         Trip *modifiedNode = route->trips[index];
         route->distance -= modifiedNode->distance;
@@ -255,6 +259,7 @@ void Solution::insertTrip(Route *route, int index, Node *node) {
             route->type = newTrip->finalNode->getType();
         }
         this->recollected[route->getTypeIndex()] += (route->truck->getTotalCapacity()- route->remainingCapacity);
+        this->unsatisfiedDemand[route->getTypeIndex()] -= route->truck->getTotalCapacity()- route->remainingCapacity;
 
         route->trips.insert(route->trips.begin() + index, newTrip);
     }
@@ -264,6 +269,7 @@ void Solution::insertTrip(Route *route, int index, Node *node) {
         route->distance += initial->distance + final->distance;
         route->type = initial->finalNode->getType();
         this->recollected[route->getTypeIndex()] += initial->finalNode->getProduction();
+        this->unsatisfiedDemand[route->getTypeIndex()] -= initial->finalNode->getProduction();
         route->remainingCapacity -= initial->finalNode->getProduction();
         route->trips.push_back(initial);
         route->trips.push_back(final);
@@ -277,7 +283,7 @@ void Solution::removeTrip(int tripIndex, Route *route) {
     Trip *currentTrip = route->trips[tripIndex]; // 0-x
     Trip *nextTrip = route->trips[tripIndex + 1];// x-0
     this->recollected[route->getTypeIndex()] -= route->truck->getTotalCapacity()- route->remainingCapacity;
-
+    this->unsatisfiedDemand[route->getTypeIndex()] += route->truck->getTotalCapacity()- route->remainingCapacity;
     route->distance -= currentTrip->distance + nextTrip->distance;//0
 
     nextTrip->initialNode = currentTrip->initialNode; //x-0 -> 0-0
@@ -291,7 +297,8 @@ void Solution::removeTrip(int tripIndex, Route *route) {
 
     route->CheckType();
     if(route->trips.size() > 1){
-        this->recollected[route->getTypeIndex()] += (route->truck->getTotalCapacity()- route->remainingCapacity);
+        this->recollected[route->getTypeIndex()] += route->truck->getTotalCapacity()- route->remainingCapacity;
+        this->unsatisfiedDemand[route->getTypeIndex()] -= route->truck->getTotalCapacity()- route->remainingCapacity;
     }
     else{
         route->trips.erase(route->trips.begin());
@@ -542,7 +549,6 @@ bool Solution::isFeasible(){
             t = 0;
         }
     }
-    this->evaluate();
     //std::cout << "factible previo a mezcla :"<< t << '\n';
     for(int i=0; i < this->recollected.size(); i++){
         if (resto[i] < 0 && i != 0){
@@ -570,7 +576,6 @@ bool Solution::isFeasible(){
         }
     }
     //std::cout << "factible post mezcla: "<< t << '\n';
-    this->evaluate();
     return t;
 }
 
@@ -589,11 +594,11 @@ double Solution::evaluate(){
     return milk - totalDistance * this->kilometerCost;
 }
 
-vector<double> Solution::PercentageLeft(){
+vector<double> Solution::PercentageLeft(vector<int> collected){
     vector<double> r;
     int a;
     for (int i = 0; i < this->recollected.size(); i++) {
-        a = this->problemInstance->qualities[i] - this->recollected[i];
+        a = this->problemInstance->qualities[i] - collected[i];
         if (a >= 0 && this->problemInstance->qualities[i]!=0){
             r.push_back((double)a/(double)this->problemInstance->qualities[i]);
         }
@@ -605,9 +610,75 @@ vector<double> Solution::PercentageLeft(){
     return r;
 }
 
+vector<int> Solution::newRecollected(int update){
+    bool t = 1;
+    vector<int> resto,TRec;
+
+    for(int i=0; i < this->recollected.size(); i++){
+        TRec.push_back(this->recollected[i]);
+        resto.push_back(this->recollected[i]-this->problemInstance->qualities[i]);
+    }
+    for(int i=this->recollected.size(); i >= 0; i--){
+        if(resto[i] < 0 && i == this->recollected.size()){
+            if(resto[i-1] > 0){
+                if (resto[i-1] >= abs(resto[i])){
+                    resto[i-1] += resto[i];
+                    TRec[i-1] += resto[i];
+                    TRec[i] -= resto[i];
+                    resto[i] = 0;
+                }
+                else{
+                    resto[i] += resto[i-1];
+                    TRec[i] -= resto[i-1];
+                    TRec[i-1] += resto[i-1];
+                    resto[i-1] = 0;
+                    if (resto[i-2] > 0){
+                        if (resto[i-2] > abs(resto[i])){
+                            resto[i-2] += resto[i];
+                            TRec[i-2] += resto[i];
+                            TRec[i] -= resto[i];
+                            resto[i] = 0;
+                        }
+                        else{
+                            resto[i] += resto[i-2];
+                            TRec[i] += resto[i-2];
+                            TRec[i-2] -= resto[i-2];
+                            resto[i-2] = 0;
+                        }
+                    }
+                }
+            }
+        }
+        if(i == this->recollected.size()-1 && resto[i] < 0){
+            if(resto[i-1] > 0){
+                if(resto[i-1] >= abs(resto[i])){
+                    resto[i-1] += resto[i];
+                    TRec[i-1] += resto[i];
+                    TRec[i] -= resto[i];
+                    resto[i] = 0;
+                }
+                else{
+                    resto[i] += resto[i-1];
+                    TRec[i] += resto[i-1];
+                    TRec[i-1] -= resto[i-1];
+                    resto[i-1] = 0;
+                }
+            }
+        }
+    }
+    if(update){
+        for (size_t i = 0; i < this->unsatisfiedDemand.size(); i++) {
+            this->unsatisfiedDemand[i] = -(resto[i]);
+        }
+    }
+    //std::cout << "factible post mezcla: "<< t << '\n';
+    return TRec;
+}
+
 vector<double> Solution::PunishEvaluate(double punish){
     double totalDistance(0);
-    vector<double> v = this->PercentageLeft();
+    vector<int> newRecollected = this->newRecollected();
+    vector<double> v = this->PercentageLeft(newRecollected);
     for (Route *r: this->routes) {
         totalDistance += r->distance;
     }
@@ -615,7 +686,7 @@ vector<double> Solution::PunishEvaluate(double punish){
     double milk(0);
     for (int i=0; i < this->recollected.size(); i++){
         //std::cout << "agregando: "<< (double)this->recollected[i] * this->literCost[i] << '\n';
-        milk += (double)this->recollected[i] * this->literCost[i];
+        milk += (double)newRecollected[i] * this->literCost[i];
 
     }
     //std::cout << "eval distance"<< totalDistance << '\n';

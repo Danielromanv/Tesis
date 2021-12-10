@@ -64,6 +64,7 @@ public:
     Truck *getNextTruck();
     int getUnsatisfiedType(int from);
     char getType(int i, bool reverse);
+    vector<int> newRecollected(int update = 1);
 
     void printAll();
     void printSolution();
@@ -74,6 +75,6 @@ public:
     bool isFeasible();
     bool DetectWrong(void);
     vector<int> left();
-    vector<double> PercentageLeft();
+    vector<double> PercentageLeft(vector<int> collected);
 
 };

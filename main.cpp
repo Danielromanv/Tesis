@@ -67,7 +67,7 @@ int main(int argc, char *argv[]) {
         //va devolver la diferencia de distancia
 
         //While haciendo exchanges entre rutas con parametro de steps
-        int m = 0, stuck = 0, pert = 1;
+        int m = 0, stuck = 0, pert = 1, intentos = 0, max_intentos,s;
         double prev;
         while(m < steps){
             for (size_t i = 0; i < solucion->routes.size(); i++) {
@@ -91,8 +91,8 @@ int main(int argc, char *argv[]) {
             if (solucion->PunishEvaluate(castigo)[0] > Msolucion->PunishEvaluate(castigo)[0]){
                 Msolucion->resetSolution(*solucion);
                 std::cout << Msolucion->PunishEvaluate(castigo)[0] <<" "<<  Msolucion->PunishEvaluate(castigo)[1]<< " "<<  Msolucion->PunishEvaluate(castigo)[2]<< " "<<  Msolucion->PunishEvaluate(castigo)[3] << " "<< problemInstance->qualities[0]-Msolucion->recollected[0]<< " "<< problemInstance->qualities[1]-Msolucion->recollected[1]<< " "<< problemInstance->qualities[2]-Msolucion->recollected[2] << std::endl;
-                stuck = 0;
             }
+            max_intentos = 2 * solucion->routes.size();
             stuck++;
             if (stuck > 0.1*steps) {
                 pert++;
@@ -101,6 +101,14 @@ int main(int argc, char *argv[]) {
                     pert = 1;
                 }
             }
+            while (intentos < max_intentos) {
+                s = solucion->random_int_number(0,solucion->routes.size()-1);
+                if(move->checkRoute(solucion, solucion->routes[s])[0] == 1){
+                    move->purify(solucion, solucion->routes[s]);
+                    intentos = max_intentos;
+                }
+                intentos++;
+            }
             move->AddCandidates(solucion,pert);
             m++;
         }
@@ -108,6 +116,7 @@ int main(int argc, char *argv[]) {
         if (solucion->PunishEvaluate(castigo)[0] > Msolucion->PunishEvaluate(castigo)[0]){
             Msolucion->resetSolution(*solucion);
             std::cout << Msolucion->PunishEvaluate(castigo)[0] <<" "<<  Msolucion->PunishEvaluate(castigo)[1]<< " "<<  Msolucion->PunishEvaluate(castigo)[2]<< " "<<  Msolucion->PunishEvaluate(castigo)[3] << " "<< problemInstance->qualities[0]-Msolucion->recollected[0]<< " "<< problemInstance->qualities[1]-Msolucion->recollected[1]<< " "<< problemInstance->qualities[2]-Msolucion->recollected[2] << std::endl;
+
         }
 
         solucion->resetSolution(*rsolucion);

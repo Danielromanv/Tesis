@@ -618,7 +618,7 @@ vector<int> Solution::newRecollected(vector<int> recollect,int update){
         resto.push_back(recollect[i]-this->problemInstance->qualities[i]);
     }
     for(int i=recollect.size()-1; i >= 0; i--){
-        if(resto[i] < 0 && i == recollect.size()){
+        if(resto[i] < 0 && i == recollect.size()-1){
             if(resto[i-1] > 0){
                 if (resto[i-1] >= abs(resto[i])){
                     resto[i-1] += resto[i];
@@ -628,8 +628,8 @@ vector<int> Solution::newRecollected(vector<int> recollect,int update){
                 }
                 else{
                     resto[i] += resto[i-1];
-                    TRec[i] -= resto[i-1];
-                    TRec[i-1] += resto[i-1];
+                    TRec[i] += resto[i-1];
+                    TRec[i-1] -= resto[i-1];
                     resto[i-1] = 0;
                     if (resto[i-2] > 0){
                         if (resto[i-2] > abs(resto[i])){
@@ -701,6 +701,8 @@ vector<double> Solution::PunishEvaluate(double punish){
     //return milk - (totalDistance * this->kilometerCost) - punish*((v[2]*this->literCost[2]*2) + (v[1]*this->literCost[1]*3) + (v[0]*this->literCost[0]*4));
     return ev;
 }
+
+
 
 int Solution::getDistance(){
     int totalDistance;

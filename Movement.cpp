@@ -115,7 +115,7 @@ Route *Movement::createNewRoute(int desde, int hasta, Route *route, Solution * s
 
 
 void Movement::ToptNeigborhood(Solution *solution, Route * route){
-    bool debug = 0;
+    bool debug = false;
     int size_ruta=route->trips.size();
     if (size_ruta < 3) return;
     int start1=solution->random_int_number(0,size_ruta-1);
@@ -128,10 +128,10 @@ void Movement::ToptNeigborhood(Solution *solution, Route * route){
             while(tries2 < size_ruta){
                 int index2=(start2+tries2)%size_ruta;
                 if (index2 < size_ruta){
-                    if(abs(index1 - index2) > 2) {
+                    if(abs(index1 - index2) > 1) {
 
                         if(this->ToptCheck(solution, index1, index2,route) < 0){
-                            if (debug) cout << "check "<< ToptCheck(solution, index1, index2,route)  << '\n';
+                            if (debug) cout << "check: "<< ToptCheck(solution, index1, index2,route)  << '\n';
                             if (debug) cout << "index 1: "<< index1<< " index 2: "<< index2 << '\n';
                             Route *newRoute = this->createNewRoute(index1, index2, route, solution);
 
@@ -395,10 +395,10 @@ void Movement::ExNeiborhood(Solution *solution, Route * routeA, Route * routeB, 
     if (routeA->trips.size() == 0 ||routeB->trips.size() == 0){
         return;
     }
-    for (size_t la = 1; la <= 3; la++) {
+    for (size_t la = 1; la <= 5; la++) {
         /* code */
         //For de la ruta A, y recorro todos los largos posibles
-        for (size_t lb = 1; lb <= 3; lb++) {
+        for (size_t lb = 1; lb <= 5; lb++) {
             //For de la ruta B, y recorro todos los largos posibles
             //random a y random b
             int startA=solution->random_int_number(0,size_rutaA-1);
@@ -484,18 +484,21 @@ void Movement::RemoveFromRoute(Solution * solution, int a){
 
 void Movement::AddCandidates(Solution * solution, int max){
     bool debug = 0;
-    vector<Node *> candidates = this->getCandidates(solution, max);
+    vector<Node *> candidates = this->getCandidates(solution, solution->problemInstance->getNumberOfNodes());
     // vector<Node *> candidates = this->getCandidates(solution, solution->random_int_number(1,max));
     int routesize = solution->routes.size(), r;
-    if(rand() < 0.15){
-        for (size_t i = 0; i < candidates.size()-1; i++) {
-            this->RemoveFromRoute(solution, rand() % (solution->routes.size()-1));
+    //if(rand() < 0.8){
+    int route_id;
+    if(solution->random_number(0,1) < 1.0){
+        route_id = rand() % (solution->routes.size()-1);
+        for (size_t i = 0; i < max; i++) {
+            this->RemoveFromRoute(solution, route_id);
         }
     }
     int start1, tries1;
     for (size_t i = 0; i < candidates.size(); i++) {
         start1 = solution->random_int_number(0,routesize-1);
-        tries1=0;
+        tries1 = 0;
         while(tries1 < routesize){
             int index1=(start1+tries1)%routesize;
             if ((!solution->routes.size())||(solution->routes[index1]->remainingCapacity > candidates[i]->getProduction() && candidates[i]->getTypeIndex() == solution->routes[index1]->getTypeIndex())){
@@ -533,22 +536,43 @@ vector<double> Movement::checkRoute(Solution * solution, Route * route){
     return proportion;
 }
 
+// void Movement::purify(Solution * solution, Route * route){
+//     vector<double> v = checkRoute(solution, route);
+//     int j =0;
+//     if (v[0]){
+//         for (size_t i = 1; i < v.size(); i++) {
+//             if(v[i] > 0){
+//                 do {
+//                     if(route->trips[j]->finalNode->getType() > i){
+//                         solution->removeTrip(j, route);
+//                     }
+//                     else{
+//                         j++;
+//                     }
+//                 }while(route->trips[j]->finalNode->getId() != 0);
+//                 return;
+//             }
+//         }
+//     }
+// }
+
 void Movement::purify(Solution * solution, Route * route){
     vector<double> v = checkRoute(solution, route);
-    int j =0;
-    if (v[0]){
-        for (size_t i = 1; i < v.size(); i++) {
-            if(v[i] > 0){
+    int j;
+    if(v[0] > 0){
+        for(int i=1; i<4; i++){
+            j = 0;
+            if(v[i] < 0.1){
                 do {
-                    if(route->trips[j]->finalNode->getType() > i){
+                    if(route->trips[j]->finalNode->getType() == i){
                         solution->removeTrip(j, route);
                     }
                     else{
                         j++;
                     }
                 }while(route->trips[j]->finalNode->getId() != 0);
-                return;
             }
         }
     }
 }
+

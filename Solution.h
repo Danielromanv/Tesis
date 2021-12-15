@@ -66,6 +66,7 @@ public:
     char getType(int i, bool reverse);
     vector<int> newRecollected(vector<int> recollect,int update = 1);
     void printAll();
+    void printShort();
     void printSolution();
     int getDistance();
     double evaluate();

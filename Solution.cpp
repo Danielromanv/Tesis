@@ -694,14 +694,13 @@ vector<double> Solution::PunishEvaluate(double punish){
     // std::cout << (v[0]*this->literCost[0]*4) << '\n';
     //std::cout << "obj castigado: "<< milk - (totalDistance * this->kilometerCost) - punish*((v[2]*this->literCost[2]*2) + (v[1]*this->literCost[1]*3) + (v[0]*this->literCost[0]*4)) << '\n';
     vector<double> ev;
-    ev.push_back(milk - (totalDistance * this->kilometerCost) - punish*((v[2]*this->literCost[2]*MilkWeight[2]) + (v[1]*this->literCost[1]*MilkWeight[1]) + (v[0]*this->literCost[0]*MilkWeight[0])));
+    ev.push_back(milk - (totalDistance * this->kilometerCost) - punish*((v[2]*MilkWeight[2]) + (v[1]*MilkWeight[1]) + (v[0]*MilkWeight[0])));
     ev.push_back(milk);
     ev.push_back(totalDistance * this->kilometerCost);
-    ev.push_back(punish*((v[2]*this->literCost[2]*MilkWeight[2]) + (v[1]*this->literCost[1]*MilkWeight[1]) + (v[0]*this->literCost[0]*MilkWeight[0])));
+    ev.push_back(punish*((v[2]*MilkWeight[2]) + (v[1]*MilkWeight[1]) + (v[0]*MilkWeight[0])));
     //return milk - (totalDistance * this->kilometerCost) - punish*((v[2]*this->literCost[2]*2) + (v[1]*this->literCost[1]*3) + (v[0]*this->literCost[0]*4));
     return ev;
 }
-
 
 
 int Solution::getDistance(){
@@ -710,4 +709,67 @@ int Solution::getDistance(){
         totalDistance += r->distance;
     }
     return totalDistance;
+}
+
+
+void Solution::printShort() {
+    cout << endl;
+    cout << "**Solution**" << endl;
+
+    double totalRecollected(0);
+    cout << "recollected x quality: ";
+    int i=0;
+    for (int r: this->recollected) {
+        totalRecollected += r;
+        cout <<"Tipo: " << i+1 << " [" <<  r <<"] ,  " ;
+        i++;
+    }
+    i=0;
+    cout << " Total: [" << totalRecollected << "] " << endl << "Demand satisfaction: ";
+    for (int d: this->unsatisfiedDemand) {
+        cout <<"Tipo: " << i+1 << " [" << d <<"] ,  " ;
+        i++;
+    }
+
+    cout << endl<<"# Unused trucks: " << this->unusedTrucks.size() << endl;
+//     for (Truck *t: this->unusedTrucks) {
+//         t->printAll();
+//     }
+
+    cout << "# Unvisited nodes: " << this->unvisitedNodes.size() << endl;
+    for (Node *n: this->unvisitedNodes) {
+        cout << n->getId() << "(" << n->getType() << ") " ;
+    }
+    cout << endl;
+//     cout << "# nodes x quality: " << endl;
+//     for (int q: this->nodesXQuality) {
+//         cout << q << endl;
+//     }
+// 
+//     double totalDistance(0);
+    for (Route *r: this->routes) {
+        cout << r->distance << "/" << r->truck->getTotalCapacity() - r->remainingCapacity << " : ";
+        for (Trip *t: r->trips){
+            if (t->finalNode->getId() != 0){
+                cout << t->finalNode->getId() << "(" << t->finalNode->getType() << ") " ;
+            }
+        }
+        cout << endl;
+    }
+    cout << endl;
+
+//     cout << "Distance cost: " << this->kilometerCost * totalDistance << endl;
+// 
+//     cout << "Milk cost: " << endl;
+//     double suma(0);
+//     for (int i = 0; i < this->recollected.size(); ++i) {
+//         suma += this->recollected[i] * this->literCost[i];
+//         cout << this->recollected[i] * this->literCost[i] << endl;
+//     }
+//     cout << "Total Milk cost: " << suma << endl;
+// 
+//     for (Route *r: this->routes) {
+//         cout << endl;
+//         r->printAll();
+//     }
 }

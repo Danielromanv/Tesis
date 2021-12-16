@@ -501,7 +501,7 @@ void Movement::AddCandidates(Solution * solution, int max){
         tries1 = 0;
         while(tries1 < routesize){
             int index1=(start1+tries1)%routesize;
-            if ((!solution->routes.size())||(solution->routes[index1]->remainingCapacity > candidates[i]->getProduction() && candidates[i]->getTypeIndex() == solution->routes[index1]->getTypeIndex())){
+            if ((!solution->routes.size())||(solution->routes[index1]->remainingCapacity > candidates[i]->getProduction() && candidates[i]->getTypeIndex() <= solution->routes[index1]->getTypeIndex())){
                 if(debug){
                     std::cout << "add canidate: " << '\n';
                     candidates[i]->printAll();
@@ -511,6 +511,9 @@ void Movement::AddCandidates(Solution * solution, int max){
                 solution->insertTrip(solution->routes[index1],0,candidates[i]);
                 if(debug)solution->routes[index1]->printAll();
                 break;
+            }
+            else{
+                if (solution->routes.size() == 0 && candidates.size()>0) solution->insertTrip(solution->routes[index1],0,candidates[solution->random_int_number(0,candidates.size()-1)]);
             }
             tries1++;
         }
@@ -575,4 +578,3 @@ void Movement::purify(Solution * solution, Route * route){
         }
     }
 }
-

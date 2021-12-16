@@ -84,11 +84,11 @@ int main(int argc, char *argv[]) {
                         if (debug) solucion->printShort();
                         if (debug) getchar();
                     }
-                    
+
                 }while(rb < ra);
             }
-            
-            
+
+
             /////////////////////////////// Exchange ///////////////////////////////////////////////////////////
             do{
                 prev = solucion->PunishEvaluate(castigo)[0];
@@ -98,16 +98,16 @@ int main(int argc, char *argv[]) {
                         //Elegir la ruta B
                         move->ExNeiborhood(solucion, solucion->routes[i], solucion->routes[j],castigo);
                         if (solucion->PunishEvaluate(castigo)[0] > Msolucion->PunishEvaluate(castigo)[0]){
-                        
+
                             Msolucion->resetSolution(*solucion);
                             std::cout << "n: " << n << " m:" << m << " slack: " << slack << "  Exch-----> " << Msolucion->PunishEvaluate(castigo)[0] <<" "<<  Msolucion->PunishEvaluate(castigo)[1]<< " "<<  Msolucion->PunishEvaluate(castigo)[2]<< " "<<  Msolucion->PunishEvaluate(castigo)[3] << " "<< problemInstance->qualities[0]-Msolucion->recollected[0]<< " "<< problemInstance->qualities[1]-Msolucion->recollected[1]<< " "<< problemInstance->qualities[2]-Msolucion->recollected[2] << std::endl;
                             if (debug) solucion->printShort();
                             if (debug) getchar();
-                        }   
+                        }
                     }
                 }
             }while(solucion->PunishEvaluate(castigo)[0] > prev);
-            
+
             /////////////////////////////// Limpieza ///////////////////////////////////////////////////////////
             max_intentos = 2 * solucion->routes.size();
             intentos = 0;
@@ -119,32 +119,32 @@ int main(int argc, char *argv[]) {
                 }
                 intentos++;
             }
-            
+
             if (debug) cout << "Post Limpieza" << endl;
             if (debug) solucion->printShort();
             if (debug) getchar();
 
-            
+
             if (solucion->PunishEvaluate(castigo)[0] > Msolucion->PunishEvaluate(castigo)[0]){
                 Msolucion->resetSolution(*solucion);
                 std::cout << "n: " << n << " m:" << m << " slack: " << slack << "   Limpieza -->" << Msolucion->PunishEvaluate(castigo)[0] <<" "<<  Msolucion->PunishEvaluate(castigo)[1]<< " "<<  Msolucion->PunishEvaluate(castigo)[2]<< " "<<  Msolucion->PunishEvaluate(castigo)[3] << " "<< problemInstance->qualities[0]-Msolucion->recollected[0]<< " "<< problemInstance->qualities[1]-Msolucion->recollected[1]<< " "<< problemInstance->qualities[2]-Msolucion->recollected[2] << std::endl;
                 if (debug) solucion->printShort();
                 if (debug) getchar();
-            }   
+            }
 
             /////////////////////////////// Limpieza ///////////////////////////////////////////////////////////
             move->AddCandidates(solucion, pert);
             if (debug) cout << "Post Agregado" << endl;
             if (debug) solucion->printShort();
             if (debug) getchar();
-            
+
             if (solucion->PunishEvaluate(castigo)[0] > Msolucion->PunishEvaluate(castigo)[0]){
-                        
+
                 Msolucion->resetSolution(*solucion);
                 std::cout << "n: " << n << " m:" << m << " slack: " << slack <<  "    AddCand-->" << Msolucion->PunishEvaluate(castigo)[0] <<" "<<  Msolucion->PunishEvaluate(castigo)[1]<< " "<<  Msolucion->PunishEvaluate(castigo)[2]<< " "<<  Msolucion->PunishEvaluate(castigo)[3] << " "<< problemInstance->qualities[0]-Msolucion->recollected[0]<< " "<< problemInstance->qualities[1]-Msolucion->recollected[1]<< " "<< problemInstance->qualities[2]-Msolucion->recollected[2] << std::endl;
                 if (debug) solucion->printShort();
                 if (debug) getchar();
-            }   
+            }
 
             m++;
         }
@@ -152,6 +152,44 @@ int main(int argc, char *argv[]) {
         if (solucion->PunishEvaluate(castigo)[0] > Msolucion->PunishEvaluate(castigo)[0]){
             Msolucion->resetSolution(*solucion);
             std::cout << Msolucion->PunishEvaluate(castigo)[0] <<" "<<  Msolucion->PunishEvaluate(castigo)[1]<< " "<<  Msolucion->PunishEvaluate(castigo)[2]<< " "<<  Msolucion->PunishEvaluate(castigo)[3] << " "<< problemInstance->qualities[0]-Msolucion->recollected[0]<< " "<< problemInstance->qualities[1]-Msolucion->recollected[1]<< " "<< problemInstance->qualities[2]-Msolucion->recollected[2] << std::endl;
+
+        }
+        if(solucion->random_number(0,1) < 0.15){
+            cout << "restart" << endl;
+            solucion->resetSolution(*Msolucion);
+            move->AddCandidates(solucion, 2); // probar otro;
+
+            for(int i=0; i<2; i++){
+                int rA;
+                do{
+                    rA = solucion->random_int_number(0, solucion->routes.size()-1);
+                } while(solucion->routes[rA]->trips.size() <= 2);
+                int rB;
+                do{
+                    rB = solucion->random_int_number(0, solucion->routes.size()-1);
+                }while(rA == rB || solucion->routes[rB]->trips.size() <= 2);
+
+                Route *routeA = solucion->routes[rA];
+
+                move->RemoveFromRoute(solucion, rA);
+                
+                Route *routeB = solucion->routes[rB];
+
+                int indexA = solucion->random_int_number(0, routeA->trips.size()-1);
+
+                int indexB = solucion->random_int_number(0, routeB->trips.size()-1);
+
+                int la = solucion->random_int_number(1, 3);
+                int lb = solucion->random_int_number(1, 3);
+                cout << "here!" << endl;
+
+                move->ChangeTrip(solucion, indexA, indexB, la, lb, routeA, routeB, castigo);
+                cout << "*here!" << endl;
+
+            }
+            //solucion->routes[ra]->printAll();
+            //solucion->routes[rb]->printAll();
+            //std::cout << "real: "<<solucion->PunishEvaluate(castigo)[0] << '\n';
 
         }
 
@@ -164,6 +202,7 @@ int main(int argc, char *argv[]) {
     }
     Msolucion->printAll();
     std::cout << Msolucion->PunishEvaluate(castigo)[0]<< " "<< (double)(clock() - tStart)/CLOCKS_PER_SEC<<" "<<  Msolucion->PunishEvaluate(castigo)[1]<< " "<<  Msolucion->PunishEvaluate(castigo)[2]<< " "<<  Msolucion->PunishEvaluate(castigo)[3] << " "<< problemInstance->qualities[0]-Msolucion->recollected[0]<< " "<< problemInstance->qualities[1]-Msolucion->recollected[1]<< " "<< problemInstance->qualities[2]-Msolucion->recollected[2] << std::endl;
+    //move->RemoveFromRoute(Msolucion,6);
     //vector<double> p= move->checkRoute(Msolucion, Msolucion->routes[5]);
     //std::cout << p[0]<< " "<<p[1]<<" "<<p[2]<< " " <<p[3] << '\n';
     //Msolucion->newRecollected();

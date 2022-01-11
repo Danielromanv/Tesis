@@ -38,4 +38,5 @@ public:
     void AddCandidates(Solution * solution, int max);
     vector<double> checkRoute(Solution * solution, Route * route);
     void purify(Solution * solution, Route * route);
+    int CFiller(Solution * solution);
 };

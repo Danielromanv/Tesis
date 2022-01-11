@@ -58,6 +58,7 @@ public:
     Trip *newTrip(Node *node1, Node *node2, Route *route);
     void replaceInSolution(Route *newRoute);
     void resetSolution(const Solution &s2);
+    void clearTrip(int tripIndex, Route *route) ;
 
     int getDemandSubtraction(int dda, int prod);
     Node *getCurrentNode();

@@ -17,7 +17,6 @@ int main(int argc, char *argv[]) {
     int castigo(atoi(argv[5]));
     int n = 0;
     float slack = 1.0;
-
     srand(seed);
 
     clock_t tStart = clock();
@@ -46,6 +45,7 @@ int main(int argc, char *argv[]) {
      // Revisar si dejar dentro o fuera
     Movement *move = new Movement();
     bool debug = false;
+    bool firstC = false;
     while (n < runs) {
         slack = solucion->random_number(0.7, 1);
         Construction *construct = new Construction(0, solucion);
@@ -147,6 +147,7 @@ int main(int argc, char *argv[]) {
             }
 
             m++;
+
         }
 
         if (solucion->PunishEvaluate(castigo)[0] > Msolucion->PunishEvaluate(castigo)[0]){
@@ -155,7 +156,7 @@ int main(int argc, char *argv[]) {
 
         }
         if(solucion->random_number(0,1) < 0.15){
-            cout << "restart" << endl;
+            // cout << "restart" << endl;
             solucion->resetSolution(*Msolucion);
             move->AddCandidates(solucion, 2); // probar otro;
 
@@ -172,7 +173,7 @@ int main(int argc, char *argv[]) {
                 Route *routeA = solucion->routes[rA];
 
                 move->RemoveFromRoute(solucion, rA);
-                
+
                 Route *routeB = solucion->routes[rB];
 
                 int indexA = solucion->random_int_number(0, routeA->trips.size()-1);
@@ -181,10 +182,10 @@ int main(int argc, char *argv[]) {
 
                 int la = solucion->random_int_number(1, 3);
                 int lb = solucion->random_int_number(1, 3);
-                cout << "here!" << endl;
+                // cout << "here!" << endl;
 
                 move->ChangeTrip(solucion, indexA, indexB, la, lb, routeA, routeB, castigo);
-                cout << "*here!" << endl;
+                // cout << "*here!" << endl;
 
             }
             //solucion->routes[ra]->printAll();
@@ -193,11 +194,31 @@ int main(int argc, char *argv[]) {
 
         }
 
-        solucion->resetSolution(*rsolucion);
+
         //comparar si es mejor que la mejorsolucion y reemplazar y reset solution de la que varia
 
         delete construct;
+        if(n >= 0.75*runs && firstC == 0){
+            for (size_t i = 0; i < 2*Msolucion->routes.size(); i++) {
+                solucion->resetSolution(*Msolucion);
+                int s = move->CFiller(solucion);
+                do {
+                    ra = solucion->routes[s]->distance;
+                    move->ToptNeigborhood(solucion, solucion->routes[s]);
+                    solucion->routes[s]->DetectWrong();
+                    rb = solucion->routes[s]->distance;
+                }while(rb < ra);
+                if (solucion->PunishEvaluate(castigo)[0] >= Msolucion->PunishEvaluate(castigo)[0]){
+                    firstC = 1;
+                    Msolucion->resetSolution(*solucion);
+                    i = 2*Msolucion->routes.size();
+                }
+            }
+        }
+        solucion->resetSolution(*rsolucion);
         n++;
+        //chequear si estoy por el final y probar si mejoro agregando C en una ruta reiniciada y agrego mas runs
+        //y le hago 2 opt a la ruta
         //slack = 1.00 - (float)n/(float)runs;
     }
     Msolucion->printAll();

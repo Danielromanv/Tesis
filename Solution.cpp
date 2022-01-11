@@ -241,7 +241,9 @@ void Solution::removeTruck(Truck *truck) {
     this->unusedTrucks.erase(this->unusedTrucks.begin() + index);
 }
 void Solution::insertTrip(Route *route, int index, Node *node) {
-    this->removeNode(node);
+    if(node->getId() != this->plant->getId()){
+        this->removeNode(node);
+    }
     if (route->trips.size() > 0){
         this->recollected[route->getTypeIndex()] -= route->truck->getTotalCapacity()- route->remainingCapacity;
         this->unsatisfiedDemand[route->getTypeIndex()] += route->truck->getTotalCapacity()- route->remainingCapacity;
@@ -305,6 +307,24 @@ void Solution::removeTrip(int tripIndex, Route *route) {
         route->type = 0;
     }
 }
+
+void Solution::clearTrip(int tripIndex, Route *route) {
+    if (!route->trips.size()){
+        return;
+    }
+    Trip *currentTrip = route->trips[tripIndex]; // 0-x
+    this->recollected[route->getTypeIndex()] -= route->truck->getTotalCapacity()- route->remainingCapacity;
+    this->unsatisfiedDemand[route->getTypeIndex()] += route->truck->getTotalCapacity()- route->remainingCapacity;
+    route->distance -= currentTrip->distance;//0
+    //std::cout << currentTrip->finalNode->getProduction() << '\n';
+    //route->remainingCapacity += currentTrip->finalNode->getProduction();
+    route->remainingCapacity = route->remainingCapacity + currentTrip->finalNode->getProduction() ;
+    if(currentTrip->finalNode->getId() != 0){
+        this->addNode(currentTrip->finalNode);
+    }
+    route->trips.erase(route->trips.begin() + tripIndex); // borrar 0-x
+}
+
 
 Trip *Solution::newTrip(Node *node1, Node *node2, Route *route) {
     int distance(problemInstance->getDistance(node1, node2));
@@ -745,7 +765,7 @@ void Solution::printShort() {
 //     for (int q: this->nodesXQuality) {
 //         cout << q << endl;
 //     }
-// 
+//
 //     double totalDistance(0);
     for (Route *r: this->routes) {
         cout << r->distance << "/" << r->truck->getTotalCapacity() - r->remainingCapacity << " : ";
@@ -759,7 +779,7 @@ void Solution::printShort() {
     cout << endl;
 
 //     cout << "Distance cost: " << this->kilometerCost * totalDistance << endl;
-// 
+//
 //     cout << "Milk cost: " << endl;
 //     double suma(0);
 //     for (int i = 0; i < this->recollected.size(); ++i) {
@@ -767,7 +787,7 @@ void Solution::printShort() {
 //         cout << this->recollected[i] * this->literCost[i] << endl;
 //     }
 //     cout << "Total Milk cost: " << suma << endl;
-// 
+//
 //     for (Route *r: this->routes) {
 //         cout << endl;
 //         r->printAll();

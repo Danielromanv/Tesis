@@ -15,6 +15,8 @@ int main(int argc, char *argv[]) {
     int runs(atoi(argv[3]));
     int steps(atoi(argv[4]));
     int castigo(atoi(argv[5]));
+    int probpert(atoi(argv[6]));
+    int factorpert(atoi(argv[7]));
     int n = 0;
     float slack = 1.0;
     srand(seed);
@@ -47,6 +49,7 @@ int main(int argc, char *argv[]) {
     bool debug = false;
     bool firstC = false;
     while (n < runs) {
+        std::cout << "n: "<< n << '\n';
         slack = solucion->random_number(0.7, 1);
         Construction *construct = new Construction(0, solucion);
         construct->feasibleSolution(solucion, slack);
@@ -155,12 +158,12 @@ int main(int argc, char *argv[]) {
             std::cout << Msolucion->PunishEvaluate(castigo)[0] <<" "<<  Msolucion->PunishEvaluate(castigo)[1]<< " "<<  Msolucion->PunishEvaluate(castigo)[2]<< " "<<  Msolucion->PunishEvaluate(castigo)[3] << " "<< problemInstance->qualities[0]-Msolucion->recollected[0]<< " "<< problemInstance->qualities[1]-Msolucion->recollected[1]<< " "<< problemInstance->qualities[2]-Msolucion->recollected[2] << std::endl;
 
         }
-        if(solucion->random_number(0,1) < 0.15){
+        if(solucion->random_number(0,1) < probpert){
             // cout << "restart" << endl;
             solucion->resetSolution(*Msolucion);
             move->AddCandidates(solucion, 2); // probar otro;
 
-            for(int i=0; i<2; i++){
+            for(int i=0; i<factorpert; i++){
                 int rA;
                 do{
                     rA = solucion->random_int_number(0, solucion->routes.size()-1);

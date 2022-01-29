@@ -1,5 +1,5 @@
 OBJS = main.o Node.o  Truck.o ProblemInstance.o Reader.o Trip.o Route.o Solution.o Construction.o Movement.o
-CFLAGS =	-std=c++1y -fmax-errors=1 -ggdb #-ggdb for debug
+CFLAGS =	-std=c++1y -fmax-errors=1 -O3 -ggdb #-ggdb for debug
 
 all: MCPB
 

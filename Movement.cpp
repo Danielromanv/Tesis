@@ -605,7 +605,7 @@ int Movement::CFiller(Solution * solution){
                 solution->insertTrip(solution->routes[select],0,solution->unvisitedNodes[i]);
             }
             else{
-                solution->insertTrip(solution->routes[select],solution->routes[select]->trips.size()-1,solution->unvisitedNodes[i]);
+                solution->insertTrip(solution->routes[select],solution->routes[select]->trips.size()-1,candidates[i]);
             }
         }
     }

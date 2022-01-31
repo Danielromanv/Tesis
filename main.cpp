@@ -15,7 +15,7 @@ int main(int argc, char *argv[]) {
     int runs(atoi(argv[3]));
     int steps(atoi(argv[4]));
     int castigo(atoi(argv[5]));
-    float probpert(atoi(argv[6]));
+    float probpert(atof(argv[6]));
     int factorpert(atoi(argv[7]));
     int n = 0;
     float slack = 1.0;

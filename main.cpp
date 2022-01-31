@@ -15,7 +15,7 @@ int main(int argc, char *argv[]) {
     int runs(atoi(argv[3]));
     int steps(atoi(argv[4]));
     int castigo(atoi(argv[5]));
-    int probpert(atoi(argv[6]));
+    float probpert(atoi(argv[6]));
     int factorpert(atoi(argv[7]));
     int n = 0;
     float slack = 1.0;
@@ -49,7 +49,6 @@ int main(int argc, char *argv[]) {
     bool debug = false;
     bool firstC = false;
     while (n < runs) {
-        std::cout << "n: "<< n << '\n';
         slack = solucion->random_number(0.7, 1);
         Construction *construct = new Construction(0, solucion);
         construct->feasibleSolution(solucion, slack);

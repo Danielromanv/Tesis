@@ -602,9 +602,11 @@ int Movement::CFiller(Solution * solution){
     for (int i = 0; i < candidates.size(); i++) {
         if(solution->unvisitedNodes[i]->getProduction() < solution->routes[select]->remainingCapacity){
             if(solution->routes[select]->trips.size() == 0){
-                solution->insertTrip(solution->routes[select],0,solution->unvisitedNodes[i]);
+                //std::cout << "if i:"<< i << '\n';
+                solution->insertTrip(solution->routes[select],0,candidates[i]);
             }
             else{
+                //std::cout << "else i:"<< i << '\n';
                 solution->insertTrip(solution->routes[select],solution->routes[select]->trips.size()-1,candidates[i]);
             }
         }
